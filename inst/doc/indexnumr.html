@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Graham White" />
+
+<meta name="date" content="2018-01-26" />
+
+<title>IndexNumR: A Package for Index Number Calculation</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">IndexNumR: A Package for Index Number Calculation</h1>
+<h4 class="author"><em>Graham White</em></h4>
+<h4 class="date"><em>2018-01-26</em></h4>
+
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p><em>IndexNumR</em> is a package for computing indices of aggregate prices or quantities using information on the prices and quantities on multiple products over multiple time periods. Such numbers are routinely computed by statistical agencies to measure, for example, the general change in the level of prices, production inputs and productivity for an economy. Well known examples are consumer price indices and producer price indices.</p>
+<p>In recent years, advances have been made in index number theory to address biases in many well known and widely used index number methods. One potential solution to some of these problems is the adaptation of multilateral methods that have commonly been used in cross-sectional comparisons to the time series context. This involves more computational complexity than earlier methods, but generally requires similar inputs. <em>IndexNumR</em> provides functions that make it easy to estimate indices using common index number methods, as well as the multilateral GEKS method.</p>
+<div id="packages-providing-related-functionality" class="section level2">
+<h2>Packages providing related functionality</h2>
+<ul>
+<li>micEconIndex: produces price or quantity indices using the Paasche, Laspeyres or Fisher index methods.</li>
+<li>multilaterals: provides multilateral indices for cross-section and panel data.Can also produce bilateral indices using Paasche, Laspeyres, Fisher and Tornqvist methods.</li>
+<li>productivity: calculates indices of productivity and profitability using common index number methods.</li>
+</ul>
+</div>
+<div id="detailed-description-of-indexnumr" class="section level2">
+<h2>Detailed description of <em>IndexNumR</em></h2>
+</div>
+<div id="data-organisation" class="section level2">
+<h2>Data organisation</h2>
+<p>This first section covers the inputs into the main index number functions and how the data are to be organised to use these functions.</p>
+<div id="index-number-input-dataframe" class="section level3">
+<h3>Index number input dataframe</h3>
+<p>The index number functions <code>priceIndex</code>, <code>quantityIndex</code> and <code>GEKSIndex</code> all take a dataframe as their first argument. This dataframe should contain everything needed to compute the index. In general this includes columns for,</p>
+<ul>
+<li>prices</li>
+<li>quantities</li>
+<li>a time period variable (more on this below)</li>
+<li>a product identifier that uniquely identifies each product.</li>
+</ul>
+<p>The dataframe must have column names, since character strings are used in other arguments to the index number functions to specify which columns contain the data listed above. Column names can be set with the <code>colnames</code> function of base R. The dataset CES_sigma_2 is an example of the minimum dataframe required to compute an index.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(CES_sigma_<span class="dv">2</span>)</code></pre></div>
+<pre><code>##   time prices quantities prodID
+## 1    1   2.00  0.3846154      1
+## 2    2   1.75  0.5846626      1
+## 3    3   1.60  0.7135502      1
+## 4    4   1.50  0.9149417      1
+## 5    5   1.45  1.0280574      1
+## 6    6   1.40  1.2058234      1</code></pre>
+<p>In this case, the dataframe is sorted by the product identifier <em>prodID</em>, but it need not be sorted at all.</p>
+</div>
+<div id="the-time-period-variable" class="section level3">
+<h3>The time period variable</h3>
+<p>To be able to compute indices, the data need to be subset in order to extract all observations on products for given periods. The approach used in <em>IndexNumR</em> is to require a time period variable as an input into many of its functions that will be used for subsetting. This time period variable must satisfy the following,</p>
+<ul>
+<li>start at 1</li>
+<li>increase in integer increments of 1</li>
+<li>continuous (that is, no gaps).</li>
+</ul>
+<p>The variable may, and in fact likely will, have many observations for a given time period, since there are generally multiple items with price and quantity information. For example, the CES_sigma_2 dataset has observations on 4 products for each time period. We can see this by observing the first few rows of the dataset sorted by the time period.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(CES_sigma_<span class="dv">2</span>[<span class="kw">order</span>(CES_sigma_<span class="dv">2</span><span class="op">$</span>time),])</code></pre></div>
+<pre><code>##    time prices quantities prodID
+## 1     1   2.00  0.3846154      1
+## 13    1   1.00  1.5384615      2
+## 25    1   1.00  1.5384615      3
+## 37    1   0.50 12.3076923      4
+## 2     2   1.75  0.5846626      1
+## 14    2   0.50  7.1621164      2</code></pre>
+<p>The user can provide their own time variable, or if a date variable is available, <em>IndexNumR</em> has four functions that can compute the required time variable: <code>yearIndex</code>, <code>quarterIndex</code>, <code>monthIndex</code> and <code>weekIndex</code>. Users should be aware that if there are a very large number of observations then these functions can take some time to compute, but once it has been computed it is easier and faster to work with than dates.</p>
+</div>
+<div id="time-aggregation" class="section level3">
+<h3>Time aggregation</h3>
+A related issue is that of aggregating data collected at some higher frequency, to a lower frequency. When computing index numbers, this is often done by computing a <em>unit value</em> as follows,
+<span class="math display">\[\begin{equation}
+  UV_{t} = \frac{\sum_{i=1}^{N}p^{t}_{n}q^{t}_{n}}{\sum_{i=1}^{N}q^{t}_{n}}
+\end{equation}\]</span>
+<p>That is, sum up total expenditure on each item over the required period, and divide by the total quantity. Provided that a time period variable as described above is available, the unit values can be computed using the function <code>unitValues</code>. This function returns the unit values, along with the aggregate quantities for each time period and each product. The output will also include the product identifier and time period variable so the output dataframe from the <code>unitvalues</code> function contains everything needed to compute an index number.</p>
+</div>
+</div>
+<div id="matched-sample-indexes" class="section level2">
+<h2>Matched-sample indexes</h2>
+<p>A common issue when computing index numbers is that the sample of products over which the index is computed changes over time. Since price and quantity information is generally needed on the same set of products for each pair of periods being compared, the index calculation functions provided in <em>IndexNumR</em> provide the option <code>sample=&quot;matched&quot;</code> to use only a matched sample of products. This means that the price and quantity information will be extracted for a pair of periods, any non-overlapping products removed, and the index computed over these matched products. This is repeated for each pair of periods over which the index is being computed.</p>
+<p>Matched-sample indices may suffer from bias. As a simple assessment of the potential bias, the function <code>evaluateMatched</code> calculates the proportion of total expenditure that the matched sample covers in each time period. The function provides output for expenditure as well as counts and can evaluate overlap using either a chained or fixed base index.</p>
+The first four columns of the output presents the base period information base_index (the time index of the base period), base (total base period expenditure or count), base_matched (the expenditure or count of the base period for matched products), base_share (share of total expenditure in the base period that remains after matching). Columns 5-8 report the same information for the current period. Columns 4 and 8 can be expressed as,
+<span class="math display">\[\begin{equation}
+  \lambda_{t} = \frac{\sum_{I\in I(1)\cap I(0)}p_{n}^{t}q_{n}^{t}}{\sum_{I\in I(t)}p_{n}^{t}q_{n}^{t}} \quad \text{for } t \in \{1,0\},
+\end{equation}\]</span>
+<p>where <span class="math inline">\(I(t)\)</span> is the set of products available in period <span class="math inline">\(t\)</span>, <span class="math inline">\(t=1\)</span> refers to the current period as is used to compute column 8 and <span class="math inline">\(t=0\)</span> refers to the comparison period, which is used to compute column 4.</p>
+</div>
+<div id="bilateral-index-numbers" class="section level2">
+<h2>Bilateral index numbers</h2>
+<p>Bilateral index numbers are those that use data for two periods to compute each value of the index. All of the bilateral index numbers can be computed as period-on-period, chained or fixed base. Period-on-period simply measures the change from one period to the next. Chained indices give the cumulative change, and it is calculated as the cumulative product of the period-on-period index. The fixed base index compares each period to the base period. This is also called a direct index, because unlike a chained index, it does not go through other periods to measure the change since the base period. Formulae used to compute the bilateral index numbers from period t-1 to period t are as below.</p>
+<div id="elementary-indexes" class="section level3">
+<h3>Elementary indexes</h3>
+<ul>
+<li>Carli index <span class="citation">(Carli 1804)</span>,
+<span class="math display">\[\begin{equation*}
+P(p^{t-1},p^{t}) = \frac{1}{N}\sum_{n=1}^{N}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\right)
+\end{equation*}\]</span></li>
+<li>Jevons index <span class="citation">(Jevons 1865)</span>,
+<span class="math display">\[\begin{equation*}
+P(p^{t-1},p^{t}) = \prod_{n=1}^{N}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\right)^{(1/N)}
+\end{equation*}\]</span></li>
+<li>Dutot index <span class="citation">(Dutot 1738)</span>,
+<span class="math display">\[\begin{equation*}
+P(p^{t-1},p^{t}) = \frac{\sum_{n=1}^{N}p^{t}_{n}}{\sum_{n=1}^{N}p^{t-1}_{n}}
+\end{equation*}\]</span></li>
+</ul>
+</div>
+<div id="fixed-basket-indexes" class="section level3">
+<h3>Fixed-basket indexes</h3>
+<ul>
+<li>Laspeyres index <span class="citation">(Laspeyres 1871)</span>,
+<span class="math display">\[\begin{equation*}
+P(p^{t-1},p^{t},q^{t-1}) = \frac{\sum_{n=1}^{N}p^{t}_{n}q^{t-1}_{n}}{\sum_{n=1}^{N}p^{t-1}_{n}q^{t-1}_{n}}
+\end{equation*}\]</span></li>
+<li>Paasche index <span class="citation">(Paasche 1874)</span>,
+<span class="math display">\[\begin{equation*}
+P(p^{t-1},p^{t},q^{t}) = \frac{\sum_{n=1}^{N}p^{t}_{n}q^{t}_{n}}{\sum_{n=1}^{N}p^{t-1}_{n}q^{t}_{n}}
+\end{equation*}\]</span></li>
+</ul>
+</div>
+<div id="superlative-indexes" class="section level3">
+<h3>Superlative indexes</h3>
+<ul>
+<li>Fisher index <span class="citation">(Fisher 1921)</span>,
+<span class="math display">\[\begin{equation*}
+P(p^{t-1},p^{t},q^{t-1},q^{t}) = [P_{P}P_{L}]^{\frac{1}{2}},
+\end{equation*}\]</span>
+<p>where <span class="math inline">\(P_{P}\)</span> is the Paasche index and <span class="math inline">\(P_{L}\)</span> is the Laspeyres index. The Fisher index has other representations, but this is the one used by <em>IndexNumR</em> in its computations.</p></li>
+<li>Tornqvist index <span class="citation">(L. Törnqvist 1936; L. Törnqvist and Törnqvist 1937)</span>,
+<span class="math display">\[\begin{equation*}
+P(p^{t-1},p^{t},q^{t-1},q^{t}) = \prod_{n=1}^{N}\left(\frac{p^{t}}{p^{t-1}}\right)^{\left(s^{t-1}_{n}+s^{t}_{n}\right)/2},
+\end{equation*}\]</span>
+<p>where <span class="math inline">\(s^{t}_{n} = \frac{p^{t}_{n}q^{t}_{n}}{\sum_{n=1}^{N}p^{t}_{n}q^{t}_{n}}\)</span> is the share of period <span class="math inline">\(t\)</span> expenditure on good <span class="math inline">\(n\)</span>.</p></li>
+<li>Walsh index,
+<span class="math display">\[\begin{equation*}
+P(p^{t-1},p^{t},q^{t-1},q^{t}) = \frac{\sum_{n=1}^{N}\sqrt{q^{t-1}_{n}q^{t}_{n}}\cdot p^{t}_{n}}{\sum_{n=1}^{N}\sqrt{q^{t-1}_{n}q^{t}_{n}}\cdot p^{t-1}_{n}}
+\end{equation*}\]</span></li>
+<li>Sato-Vartia index <span class="citation">(Sato 1976; Vartia 1976)</span>,
+<span class="math display">\[\begin{equation*}
+P(p^{t-1},p^{t},q^{t-1},q^{t}) = \prod_{n=1}^{N}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\right)^{w_{n}}
+\end{equation*}\]</span>
+where the weights are normalised to sum to one,
+<span class="math display">\[\begin{equation*}
+w_{n} = \frac{w^{*}_{n}}{\sum_{n=1}^{N}w^{*}_{n}}
+\end{equation*}\]</span>
+and <span class="math inline">\(w^{*}_{n}\)</span> is the logarithmic mean of the shares,
+<span class="math display">\[\begin{equation*}
+w^{*}_{n} = \frac{s^{t}_{n}-s^{t-1}_{n}}{\log (s^{t}_{n}) - \log (s^{t-1}_{n})}
+\end{equation*}\]</span></li>
+</ul>
+</div>
+<div id="constant-elasticity-of-substitution-ces-framework-indexes" class="section level3">
+<h3>Constant elasticity of substitution (CES) framework indexes</h3>
+<ul>
+<li>CES index, also known as the Lloyd-Moulton index <span class="citation">(Lloyd 1975; Moulton 1996)</span>,
+<span class="math display">\[\begin{equation*}
+P(p^{t-1},p^{t},q^{t-1}) = \left[\sum_{n=1}^{N}s_{n}^{t-1}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\right)^{(1-\sigma)}\right]^{\left(\frac{1}{1-\sigma}\right)},
+\end{equation*}\]</span>
+where <span class="math inline">\(\sigma\)</span> is the elasticity of substitution.</li>
+</ul>
+</div>
+<div id="examples" class="section level3">
+<h3>Examples</h3>
+<p>To estimate a simple chained Laspeyres price index,</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">priceIndex</span>(CES_sigma_<span class="dv">2</span>,<span class="dt">pvar =</span> <span class="st">&quot;prices&quot;</span>,<span class="dt">qvar =</span> <span class="st">&quot;quantities&quot;</span>,<span class="dt">pervar =</span> <span class="st">&quot;time&quot;</span>,<span class="dt">prodID =</span> <span class="st">&quot;prodID&quot;</span>, <span class="dt">indexMethod =</span> <span class="st">&quot;laspeyres&quot;</span>, <span class="dt">output =</span> <span class="st">&quot;chained&quot;</span>)</code></pre></div>
+<pre><code>##            [,1]
+##  [1,] 1.0000000
+##  [2,] 0.9673077
+##  [3,] 1.2905504
+##  [4,] 1.3382002
+##  [5,] 1.2482444
+##  [6,] 1.7346552
+##  [7,] 1.6530619
+##  [8,] 1.4524186
+##  [9,] 1.8386215
+## [10,] 1.7126802
+## [11,] 2.1810170
+## [12,] 2.2000474</code></pre>
+<p>Estimating multiple different index numbers on the same data is straight-forward,</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">methods &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;laspeyres&quot;</span>,<span class="st">&quot;paasche&quot;</span>,<span class="st">&quot;fisher&quot;</span>,<span class="st">&quot;tornqvist&quot;</span>)
+prices &lt;-<span class="st"> </span><span class="kw">lapply</span>(methods, <span class="cf">function</span>(x) {<span class="kw">priceIndex</span>(CES_sigma_<span class="dv">2</span>,<span class="dt">pvar =</span> <span class="st">&quot;prices&quot;</span>, <span class="dt">qvar =</span> <span class="st">&quot;quantities&quot;</span>, <span class="dt">pervar =</span> <span class="st">&quot;time&quot;</span>, <span class="dt">prodID =</span> <span class="st">&quot;prodID&quot;</span>, <span class="dt">indexMethod =</span> x, <span class="dt">output =</span> <span class="st">&quot;chained&quot;</span>)})
+<span class="kw">as.data.frame</span>(prices, <span class="dt">col.names =</span> methods)</code></pre></div>
+<pre><code>##    laspeyres   paasche    fisher tornqvist
+## 1  1.0000000 1.0000000 1.0000000 1.0000000
+## 2  0.9673077 0.8007632 0.8801048 0.8925715
+## 3  1.2905504 0.8987146 1.0769571 1.0789612
+## 4  1.3382002 0.9247902 1.1124543 1.1146080
+## 5  1.2482444 0.6715974 0.9155969 0.9327861
+## 6  1.7346552 0.7858912 1.1675831 1.1790710
+## 7  1.6530619 0.7472454 1.1114148 1.1223220
+## 8  1.4524186 0.5836022 0.9206708 0.9379711
+## 9  1.8386215 0.6431381 1.0874224 1.0961295
+## 10 1.7126802 0.5145138 0.9387213 0.9527309
+## 11 2.1810170 0.5736947 1.1185875 1.1288419
+## 12 2.2000474 0.5745408 1.1242851 1.1346166</code></pre>
+<p>This illustrates the Laspeyres index’s substantial positive bias, the Paasche index’s substantial negative bias, and the similar estimates produced by the Fisher and Tornqvist superlative index numbers.</p>
+</div>
+</div>
+<div id="elasticity-of-substitution" class="section level2">
+<h2>Elasticity of substitution</h2>
+The CES index number method requires an elasticity of substitution parameter in order to be calculated. <em>IndexNumR</em> provides a function <code>elasticity</code> to estimate the elasticity of substitution parameter, following the method of <span class="citation">(Balk 2000)</span>. The basic method is to solve for the value of the elasticity of substitution that equates the CES index to a comparison index. One comparison index noted by Balk is the ‘current period’ CES index,
+<span class="math display">\[\begin{equation}
+  \left[\sum_{n=1}^{N}s_{n}^{t}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\right)^{-(1-\sigma)}\right]^{\left(\frac{-1}{1-\sigma}\right)}.
+\end{equation}\]</span>
+Therefore, we numerically calculate the value of <span class="math inline">\(\sigma\)</span> that solves,
+<span class="math display">\[\begin{equation}
+  \left[\sum_{n=1}^{N}s_{n}^{t-1}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\right)^{(1-\sigma)}\right]^{\left(\frac{1}{1-\sigma}\right)} - \left[\sum_{n=1}^{N}s_{n}^{t}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\right)^{-(1-\sigma)}\right]^{\left(\frac{-1}{1-\sigma}\right)} = 0. 
+\end{equation}\]</span>
+<p>This is done using the <code>uniroot</code> function of the <em>stats</em> package distributed with base R. Note that this equation can be used to solve for sigma for any <span class="math inline">\(t=2,\cdots,T\)</span>, so there are <span class="math inline">\(T-1\)</span> potential estimates of sigma. The <code>elasticity</code> function will return all <span class="math inline">\(T-1\)</span> estimates as well as the arithmetic mean of the estimates. In addition to the current period CES index, Balk also notes that the Sato-Vartia index can be used, while <span class="citation">(Ivancic, Diewert, and Fox 2010)</span> note that a Fisher index could be used. Any of these three indexes can be used as the comparison index by specifying the <code>compIndex</code> option as either <code>&quot;fisher&quot;</code>, <code>&quot;ces&quot;</code> or <code>&quot;satovartia&quot;</code>. The current period CES index is the default.</p>
+<p>The dataset available with <em>IndexNumR</em>, CES_sigma_2, was calculated assuming a CES cost function with an elasticity of substitution equal to 2. Running the <code>elasticity</code> function on this dataset,</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">elasticity</span>(CES_sigma_<span class="dv">2</span>, <span class="dt">pvar=</span><span class="st">&quot;prices&quot;</span>,<span class="dt">qvar=</span><span class="st">&quot;quantities&quot;</span>,<span class="dt">pervar=</span><span class="st">&quot;time&quot;</span>,<span class="dt">prodID=</span><span class="st">&quot;prodID&quot;</span>,<span class="dt">compIndex=</span><span class="st">&quot;ces&quot;</span>)</code></pre></div>
+<pre><code>## $sigma
+## [1] 2
+## 
+## $allsigma
+##           [,1]
+##  [1,] 2.000000
+##  [2,] 2.000001
+##  [3,] 2.000000
+##  [4,] 1.999999
+##  [5,] 2.000000
+##  [6,] 2.000000
+##  [7,] 2.000000
+##  [8,] 2.000000
+##  [9,] 2.000000
+## [10,] 2.000000
+## [11,] 2.000000
+## 
+## $diff
+##                [,1]
+##  [1,] -5.418676e-09
+##  [2,] -5.665104e-08
+##  [3,]  3.426148e-13
+##  [4,]  1.213978e-07
+##  [5,]  2.196501e-10
+##  [6,] -1.141232e-11
+##  [7,]  3.118616e-13
+##  [8,]  9.429124e-12
+##  [9,] -7.997090e-09
+## [10,]  4.536105e-11
+## [11,]  5.087042e-13</code></pre>
+<p>which recovers the value of <span class="math inline">\(\sigma\)</span> used to construct the dataset. There is one additional item of output labelled ‘diff’. This is the value of the difference between the CES index and the comparison index and is returned so that the user can check that the value of this difference is indeed zero. If it is non-zero then it may indicate that <code>uniroot</code> was not able to find a solution, within the specified upper and lower bounds for <span class="math inline">\(\sigma\)</span>. These bounds can be changed with the options <code>upper</code> and <code>lower</code> of the <code>elasticity</code> function. The defaults are 20 and -20 respectively.</p>
+</div>
+<div id="chain-linked-indices-and-the-linking-period-problem" class="section level2">
+<h2>Chain-linked indices and the linking period problem</h2>
+<p>One problem with chain-linked indices is that depending on the index number method chosen, the index will likely suffer from chain drift. Take an example where prices increase in one period and then return to their original level in the next period. An index suffering from chain-drift will increase when prices increase, but won’t return to its original level when prices do. In the above examples, it was noted that there is substantial positive bias in the Laspeyres index and substantial negative bias in the Paasche index. Part of this is due to chain drift.</p>
+<p>One way of reducing the amount of chain drift is to choose linking periods that are ‘similar’ in some sense (a way of eliminating chain-drift is to use the GEKS multilateral index discussed later). This method of linking has been mentioned by Diewert and Fox <span class="citation">(W. E. Diewert and Fox 2017)</span>, and Hill <span class="citation">(Hill 2001)</span> takes the concept further to choose the link period based on a minimum cost spanning tree.</p>
+<p>To choose the linking period we need a measure of the similarity between two periods. For each period we have information on prices and quantities. The Hill (2001) method compares the two periods based on the Paasche-Laspeyres spread,</p>
+<span class="math display">\[\begin{equation}
+PL (p^{t},p^{T+1},q^{t},q^{T+1}) = \Bigg|{ln\Bigg(\frac{P_{T+1,t}^{L}}{P_{T+1,t}^{P}}\Bigg)}\Bigg|,
+\end{equation}\]</span>
+<p>where <span class="math inline">\(P^{L}\)</span> is a Laspeyres price index and <span class="math inline">\(P^{P}\)</span> is a Paasche price index. Since the Laspeyres and Paasche indices are biased in opposite directions, this choice of similarity measure is designed to choose linking periods that minimise the influence of index number method choice.</p>
+Alternative measures exist for comparing the dissimilarity of two vectors. Two such measures, recommended by Diewert <span class="citation">(Diewert 2002)</span> are the weighted log-quadratic index of relative price dissimilarity and the weighted asymptotically linear index of relative price dissimilarity, given by the following,
+<span class="math display">\[\begin{align}
+LQ(p^{t},p^{T+1},q^{t},q^{T+1}) = \sum_{n=1}^{N}\frac{1}{2}&amp;(s_{T+1,n} + s_{t,n})[ln(p_{T+1,n}/P(p^{t},p^{T+1},q^{t},q^{T+1})p_{t,n})]^{2} \label{eq:logQuadratic} \\
+AL(p^{t},p^{T+1},q^{t},q^{T+1}) = \sum_{n=1}^{N}\frac{1}{2}&amp;(s_{T+1,n} +  s_{t,n})[(p_{T+1,n}/P(p^{t},p^{T+1},q^{t},q^{T+1})p_{t,n}) + \nonumber    \\
+&amp; (P(p^{t},p^{T+1},q^{t},q^{T+1})p_{t,n}/p_{T+1,n}) - 2]
+\end{align}\]</span>
+<p>where <span class="math inline">\(P(p^{t},p^{T+1},q^{t},q^{T+1})\)</span> is a superlative index number.</p>
+<p>A final measure proposed by Fox, Hill and Diewert <span class="citation">(Fox, Hill, and Diewert 2004)</span> is a measure of absolute dissimilarity given by,</p>
+<span class="math display">\[\begin{equation}
+AD(x_{j},x_{k}) = \frac{1}{M+N}\sum_{l=1}^{M+N}\Bigg[ln\Bigg(\frac{x_{kl}}{x_{jl}}\Bigg) - \frac{1}{M+N}\sum_{i=1}^{M+N}ln\Bigg(\frac{x_{ki}}{x_{ji}}\Bigg)\Bigg]^{2} + \Bigg[\frac{1}{M+N}\sum_{i=1}^{M+N}ln\Bigg(\frac{x_{ki}}{x_{ji}}\Bigg)\Bigg]^{2},
+\end{equation}\]</span>
+<p>where <span class="math inline">\(M+N\)</span> is the total number of items in the vector and <span class="math inline">\(x_{j}\)</span> and <span class="math inline">\(x_{k}\)</span> are the two vectors being compared. The authors use this in the context of detecting outliers, but it can be used to compare the price and quantity vectors of two time periods. One way to do this is to only use price information, or only use quantity information. There are two ways to use both price and quantity information: stack the price and quantity vectors for each time period into a single vector and compare the two `stacked’ vectors; or calculate separate measures of absolute dissimilarity for prices and quantities before combining these into a single measure. The former method is simple to implement, but augments the price vector with a quantity vector that may be of considerably different magnitude and variance. Another option is to compute the absolute dissimilarity using prices and quantities separately, then combine them by taking the geometric average.</p>
+<p><em>IndexNumR</em> provides two functions, enabling the estimation of all six dissimilarity measures above. The first function <code>relativeDissimilarity</code> calculates the Paasche-Laspeyres spread, log-quadratic and asymptotically linear measures, and the second function <code>mixScaleDissimilarity</code> computes the mix, scale and absolute measures of dissimilarity. Both functions provide the same output - a data frame with three columns containing the indices of the pairs of periods being compared in the first two columns and the value of the dissimilarity measure in the third column.</p>
+<p>Once these have been computed, the function <code>maximiumSimilarityLinks</code> can take the output data frame from these two functions and compute the maximum similarity linking periods as follows,</p>
+<ul>
+<li>Compute the measure of dissimilarity between all possible combinations of time periods.</li>
+<li>Set the price index to 1 in the first period.</li>
+<li>Compute the price index for the second period and chain it with the first period,
+<span class="math display">\[\begin{equation*}
+P_{chain}^{2} = P_{chain}^{1} \times P(p^{1},p^{2},q^{1},q^{2}),
+\end{equation*}\]</span>
+where <span class="math inline">\(P(p^{1},p^{2},q^{1},q^{2})\)</span> is any bilateral index number formula.</li>
+<li>For each period <span class="math inline">\(t\)</span> from <span class="math inline">\(3,\dots,T\)</span>, find the period <span class="math inline">\(t^{min}\)</span> with the minimum dissimilarity, comparing period <span class="math inline">\(t\)</span> to all periods <span class="math inline">\(1, \dots, t-1\)</span>.</li>
+<li>Compute the similarity chain-linked index number,
+<span class="math display">\[\begin{equation*}
+P_{chain}^{t} = P_{chain}^{t^{min}} \times P(p^{t^{min}},p^{t},q^{t^{min}},q^{t}) 
+\end{equation*}\]</span></li>
+</ul>
+<div id="examples-1" class="section level3">
+<h3>Examples</h3>
+<p>Using the log-quadratic measure of relative dissimilarity, the dissimilarity between the periods in the <code>CES_sigma_2</code> dataset is as follows,</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">lq &lt;-<span class="st"> </span><span class="kw">relativeDissimilarity</span>(CES_sigma_<span class="dv">2</span>, <span class="dt">pvar=</span><span class="st">&quot;prices&quot;</span>, <span class="dt">qvar=</span><span class="st">&quot;quantities&quot;</span>, <span class="dt">pervar =</span> <span class="st">&quot;time&quot;</span>, <span class="dt">prodID =</span> <span class="st">&quot;prodID&quot;</span>, <span class="dt">indexMethod =</span> <span class="st">&quot;fisher&quot;</span>, <span class="dt">similarityMethod =</span> <span class="st">&quot;logquadratic&quot;</span>)
+<span class="kw">head</span>(lq)</code></pre></div>
+<pre><code>##   period_i period_j dissimilarity
+## 1        1        2    0.09726451
+## 2        1        3    0.02037395
+## 3        1        4    0.04164311
+## 4        1        5    0.28078294
+## 5        1        6    0.08880177
+## 6        1        7    0.08531212</code></pre>
+<p>The output from estimating the dissimilarity between periods can than be used to estimate the maximum similarity links,</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">maximumSimilarityLinks</span>(lq)</code></pre></div>
+<pre><code>##    xt x0 dissimilarity
+## 1   1  1   0.000000000
+## 2   2  1   0.097264508
+## 3   3  1   0.020373951
+## 4   4  3   0.003832972
+## 5   5  4   0.130990853
+## 6   6  4   0.008684012
+## 7   7  6   0.001122913
+## 8   8  2   0.041022738
+## 9   9  7   0.001367896
+## 10 10  5   0.006962106
+## 11 11  9   0.002946674
+## 12 12 11   0.003612044</code></pre>
+<p>To estimate a chained Laspeyres index linking together the periods with maximum similarity as estimated above,</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">priceIndex</span>(CES_sigma_<span class="dv">2</span>,<span class="dt">pvar =</span> <span class="st">&quot;prices&quot;</span>,<span class="dt">qvar =</span> <span class="st">&quot;quantities&quot;</span>,<span class="dt">pervar =</span> <span class="st">&quot;time&quot;</span>,<span class="dt">prodID =</span> <span class="st">&quot;prodID&quot;</span>, <span class="dt">indexMethod =</span> <span class="st">&quot;laspeyres&quot;</span>, <span class="dt">output =</span> <span class="st">&quot;chained&quot;</span>, <span class="dt">chainMethod =</span> <span class="st">&quot;logquadratic&quot;</span>)</code></pre></div>
+<pre><code>##            [,1]
+##  [1,] 1.0000000
+##  [2,] 0.9673077
+##  [3,] 1.1000000
+##  [4,] 1.1406143
+##  [5,] 1.0639405
+##  [6,] 1.2190887
+##  [7,] 1.1617463
+##  [8,] 1.0551558
+##  [9,] 1.1357327
+## [10,] 1.0928877
+## [11,] 1.1732711
+## [12,] 1.1835084</code></pre>
+</div>
+</div>
+<div id="multilateral-index-numbers" class="section level2">
+<h2>Multilateral index numbers</h2>
+<p>Multilateral index number methods use data from multiple periods to compute each term in the index. <em>IndexNumR</em> provides the function <code>GEKSIndex</code> to use the GEKS multilateral index number method. The GEKS method is attributable to Gini <span class="citation">(Gini 1931)</span>, Eltito and Koves <span class="citation">(Eltetö and Köves 1964)</span>, and Szulc <span class="citation">(Szulc 1964)</span> in the cross-sectional context. The idea of adapting the method to the time series context is due to Balk <span class="citation">(Balk 1981)</span>, and developed further by Ivancic, Diewert and Fox <span class="citation">(Ivancic, Diewert, and Fox 2011)</span>.</p>
+The user must choose the size of the window over which to apply the GEKS method, typically one or two years of data plus one period to account for seasonality. Denote this as <span class="math inline">\(w\)</span>.The basic method followed by the function <code>GEKSIndex</code> is as follows. Choose a period, denoted period <span class="math inline">\(k\)</span>, within the window as the base period. Calculate a bilateral index number between period <span class="math inline">\(k\)</span> and every other period in the window. Repeat this for all possible choices of <span class="math inline">\(k\)</span>. This gives a matrix of size <span class="math inline">\(w\times w\)</span> of bilateral indexes between all possible pairs of periods within the window. Then compute the GEKS indexes for the first <span class="math inline">\(w\)</span> periods as,
+<span class="math display">\[\begin{equation}
+  \left[ \prod_{k=1}^{w}P^{k,1} \right]^{1/w}, \left[ \prod_{k=1}^{w}P^{k,2} \right]^{1/w}, \cdots, \left[ \prod_{k=1}^{w}P^{k,w} \right]^{1/w},
+\end{equation}\]</span>
+<p>where the term <span class="math inline">\(P^{k,t}\)</span> is the bilateral index between period <span class="math inline">\(t\)</span> and base period <span class="math inline">\(k\)</span>. <em>IndexNumR</em> offers the Fisher and Tornqvist index number methods for the index <span class="math inline">\(P\)</span> via the <code>indexMethod</code> option. The Tornqvist index method is the default. The <span class="math inline">\(w\times w\)</span> matrix of bilateral indexes is as follows, <span class="math display">\[P =
+\begin{pmatrix}
+  P^{1,1} &amp; \cdots &amp; P^{1,w} \\
+  \vdots &amp; \ddots &amp; \vdots \\
+  P^{w,1} &amp; \cdots &amp; P^{w,w}
+\end{pmatrix}
+\]</span> So that the first term of the GEKS index is the geometric mean of the elements in the first column of the above matrix, the second term is the geometric mean of the second column, and so on. Note that <code>IndexNumR</code> makes use of two facts about the matrix above to speed up computation: it is (inversely) symmetric so that <span class="math inline">\(P^{j,k} = 1/P^{k,j}\)</span>; and the diagonal elements are 1.</p>
+<p>The indexes are then normalised by dividing by the first term, to give an index for the first <span class="math inline">\(w\)</span> periods that starts at 1. If the index only covers <span class="math inline">\(w\)</span> periods then no further calculation is required. However, if there are <span class="math inline">\(T&gt;w\)</span> periods in the dataset then the index must be extended.</p>
+<div id="extending-the-geks-index" class="section level3">
+<h3>Extending the GEKS index</h3>
+<p>Extending a GEKS index can be done in a multitude of ways. Statistical agencies generally do not revise price indices like the consumer price index, so the methods offered by <em>IndexNumR</em> to extend the GEKS index are methods that do not lead to revisions. More specifically, these are called <em>splicing methods</em> and the three options available are the <em>movement</em>, <em>window</em> and <em>mean splice</em>. The idea is that we start by moving the window forward by one period and calculate a GEKS index for the new window. There will be <span class="math inline">\(w-1\)</span> overlapping periods between the initial GEKS index and the GEKS index computed on the window that has been rolled forward one period. Any one of these overlapping periods can be used to extend the GEKS index.</p>
+<p>Let <span class="math inline">\(P_{OLD}\)</span> be the GEKS index computed over periods <span class="math inline">\(1\)</span> to <span class="math inline">\(w\)</span> and let <span class="math inline">\(P_{NEW}\)</span> be the GEKS index computed over the window rolled forward one period, from periods <span class="math inline">\(2\)</span> to <span class="math inline">\(w+1\)</span>. Let the final GEKS index be <span class="math inline">\(P_{GEKS}\)</span>. For the first <span class="math inline">\(w\)</span> periods <span class="math inline">\(P_{GEKS} = P_{OLD}\)</span>, then <span class="math inline">\(P_{GEKS}^{w+1}\)</span> is computed using the splicing methods as follows.</p>
+<ul>
+<li>Movement splice <span class="citation">(Ivancic, Diewert, and Fox 2011)</span>
+<span class="math display">\[\begin{equation}
+  P_{GEKS}^{w+1} = P_{GEKS}^{w} \times \frac{P_{NEW}^{w+1}}{P_{NEW}^{w}}
+\end{equation}\]</span>
+<p>That is, the movement between the final two periods of the GEKS index computed over the new window is used to extend the original index from period <span class="math inline">\(w\)</span> to <span class="math inline">\(w+1\)</span>.</p></li>
+<li>Window splice <span class="citation">(Krsinich 2016)</span>
+<span class="math display">\[\begin{equation}
+  P_{GEKS}^{w+1} = P_{GEKS}^{w} \times \frac{P_{NEW}^{w+1}/P_{NEW}^{2}}{P_{OLD}^{w}/P_{OLD}^{2}}
+\end{equation}\]</span>
+<p>In this case, the ratio of the movement between the first and last periods computed using the new window, to the movement between the first and last periods using the old window is used to extend the original index.</p></li>
+<li>Mean splice <span class="citation">(Ivancic, Diewert, and Fox 2011)</span>
+<span class="math display">\[\begin{equation}
+  P_{GEKS}^{w+1} = P_{GEKS}^{w} \times \left( \prod_{t=1}^{w-1} \frac{P_{NEW}^{w+1}/P_{NEW}^{t+1}}{P_{OLD}^{w}/P_{OLD}^{t+1}} \right)^{\frac{1}{(w-1)}} 
+\end{equation}\]</span>
+<p>The mean splice uses the geometric mean of the movements between the last period and every other period in the window to extend the original index.</p></li>
+</ul>
+<p>The splicing methods are used in this fashion to extend the series up to the final period in the data.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">GEKSIndex</span>(CES_sigma_<span class="dv">2</span>, <span class="dt">pvar =</span> <span class="st">&quot;prices&quot;</span>, <span class="dt">qvar =</span> <span class="st">&quot;quantities&quot;</span>, <span class="dt">pervar =</span> <span class="st">&quot;time&quot;</span>, <span class="dt">prodID =</span> <span class="st">&quot;prodID&quot;</span>, <span class="dt">indexMethod =</span> <span class="st">&quot;tornqvist&quot;</span>, <span class="dt">window=</span><span class="dv">11</span>, <span class="dt">splice =</span> <span class="st">&quot;mean&quot;</span>)</code></pre></div>
+<pre><code>##            [,1]
+##  [1,] 1.0000000
+##  [2,] 0.8927314
+##  [3,] 1.0776386
+##  [4,] 1.1127724
+##  [5,] 0.9310834
+##  [6,] 1.1785361
+##  [7,] 1.1219447
+##  [8,] 0.9380228
+##  [9,] 1.0951667
+## [10,] 0.9501914
+## [11,] 1.1277725
+## [12,] 1.1330748</code></pre>
+</div>
+</div>
+</div>
+<div id="development" class="section level1">
+<h1>Development</h1>
+<p><em>IndexNumR</em> is hosted on Github at <a href="https://github.com/grahamjwhite/IndexNumR" class="uri">https://github.com/grahamjwhite/IndexNumR</a>. There users can find instructions to install the development version directly from Github, as well as report and view bugs or improvements.</p>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
+<div id="refs" class="references">
+<div id="ref-balk:1981">
+<p>Balk, B M. 1981. “A Simple Method for Constructing Price Indices for Seasonal Commodities.” <em>Statistische Hefte</em> 22 (1).</p>
+</div>
+<div id="ref-balk:2000">
+<p>———. 2000. “On Curing the CPI’s Substitution and New Goods Bias.” Research Paper 0005. Statistics Netherlands.</p>
+</div>
+<div id="ref-carli:1804">
+<p>Carli, G-R. 1804. “Del Valore E Della Proporzione Dei Metalli Monetati.” <em>Scrittori Classici Italiani Di Economia Politica</em> 13: 297–366.</p>
+</div>
+<div id="ref-df:2017">
+<p>Diewert, W. Erwin, and Kevin Fox. 2017. “Substitution Bias in Multilateral Methods for Cpi Construction Using Scanner Data.” Discussion Paper 17–02. Department of Economics, University of British Columbia.</p>
+</div>
+<div id="ref-Diewert:2002">
+<p>Diewert, Walter E. 2002. “Similarity and Dissimilarity Indexes: An Axiomatic Approach.” Discussion Paper 02–10. Department of Economics, University of British Columbia.</p>
+</div>
+<div id="ref-dutot:1738">
+<p>Dutot, N. 1738. <em>Réflections Politiques Sur Les Finances et Le Commerce</em>. La Haye: Les frères Vaillant et N. Prevost.</p>
+</div>
+<div id="ref-ek:1964">
+<p>Eltetö, Ö, and P Köves. 1964. “On a Problem of Index Number Computation Relating to International Comparisons.” <em>Statisztikai Szemle</em> 42: 507–18.</p>
+</div>
+<div id="ref-fisher:1921">
+<p>Fisher, I. 1921. “The Best Form of Index Number.” <em>Journal of the American Statistical Association</em> 17: 533–37.</p>
+</div>
+<div id="ref-fhd:2004">
+<p>Fox, Kevin, Robert Hill, and W. Erwin Diewert. 2004. “Identifying Outliers in Multi-Output Models.” <em>Journal of Productivity Analysis</em> 22 (1/2): 73–94.</p>
+</div>
+<div id="ref-gini:1931">
+<p>Gini, C. 1931. “On the Circular Test of Index Numbers.” <em>International Review of Statistics</em> 9 (2): 3–25.</p>
+</div>
+<div id="ref-hill:2001">
+<p>Hill, Robert. 2001. “Measuring Inflation and Growth Using Spanning Trees.” <em>International Economic REview</em> 42 (1): 167–85. <a href="http://dx.doi.org/10.1111/1468-2354.00105" class="uri">http://dx.doi.org/10.1111/1468-2354.00105</a>.</p>
+</div>
+<div id="ref-idf:2010">
+<p>Ivancic, Loraine, Walter E. Diewert, and Kevin J. Fox. 2010. “Using a Constant Elasticity of Substitution Index to Estimate a Cost of Living Index: From Theory to Practice.” School of Economics Discussion Paper 2010/15. University of New South Wales.</p>
+</div>
+<div id="ref-idf:2011">
+<p>———. 2011. “Scanner Data, Time Aggregation and the Construction of Price Indexes.” <em>Journal of Econometrics</em> 161: 24–35. <a href="https://doi.org/10.1016/j.jeconom.2010.09.003" class="uri">https://doi.org/10.1016/j.jeconom.2010.09.003</a>.</p>
+</div>
+<div id="ref-jevons:1865">
+<p>Jevons, W S. 1865. “The Variation in Prices and the Value of the Currency Since 1782.” <em>Journal of the Statistical Society of London</em> 28: 294–320. <a href="https://doi.org/10.2307/2338419" class="uri">https://doi.org/10.2307/2338419</a>.</p>
+</div>
+<div id="ref-krsinich:2016">
+<p>Krsinich, F. 2016. “The FEWS Index: Fixed Effects with a Window Splice.” <em>Journal of Official Statistics</em> 32: 375–404.</p>
+</div>
+<div id="ref-lasp:1871">
+<p>Laspeyres, E. 1871. “Die Berechnung Einer Mittleren Waarenpreissteigerung.” <em>Jahrbücher Für Nationalökonomie Und Statistik</em> 16: 296–314.</p>
+</div>
+<div id="ref-lloyd:1975">
+<p>Lloyd, P J. 1975. “Substitution Effects and Biases in Nontrue Price Indices.” <em>The American Economic Review</em> 65 (3): 301–13.</p>
+</div>
+<div id="ref-Moult:1996">
+<p>Moulton, B R. 1996. “Constant Elasticity Cost-of-Living Index in Share-Relative Form.” Mimeo. Bureau of Labour Statistics.</p>
+</div>
+<div id="ref-paasche:1874">
+<p>Paasche, H. 1874. “Über Die Preisentwicklung Der Letzten Jahre Nach Den Hamburger Borsennotirungen.” <em>Jahrbu&quot;cher Für Nationalökonomie Und Statistik</em> 12: 168–78.</p>
+</div>
+<div id="ref-sato:1976">
+<p>Sato, K. 1976. “The Ideal Log-Change Index Number.” <em>The Review of Economics and Statistics</em> 53: 223–28.</p>
+</div>
+<div id="ref-szulc:1964">
+<p>Szulc, B J. 1964. “Indices for Multiregional Comparisons.” <em>Przeglad Statystyczny</em> 3: 239–54.</p>
+</div>
+<div id="ref-torn:1936">
+<p>Törnqvist, L. 1936. “The Bank of Finland’s Consumption Price Index.” <em>Bank of Finland Monthly Bulletin</em> 10: 1–8.</p>
+</div>
+<div id="ref-torntorn:1937">
+<p>Törnqvist, L, and E Törnqvist. 1937. “Vilket är Fö Rhå Llandet Mellan Finska Markens Och Svenska Kronans Köpkraft?” <em>Ekonomiska Samfundets Tidskrift</em> 39: 121–60.</p>
+</div>
+<div id="ref-vartia:1976">
+<p>Vartia, Y O. 1976. “Ideal Log-Change Index Numbers.” <em>The Scandinavian Journal of Statistics</em> 3: 121–26.</p>
+</div>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
