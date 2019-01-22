@@ -12,7 +12,7 @@
 
 <meta name="author" content="Graham White" />
 
-<meta name="date" content="2018-01-26" />
+<meta name="date" content="2019-01-22" />
 
 <title>IndexNumR: A Package for Index Number Calculation</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">IndexNumR: A Package for Index Number Calculation</h1>
 <h4 class="author"><em>Graham White</em></h4>
-<h4 class="date"><em>2018-01-26</em></h4>
+<h4 class="date"><em>2019-01-22</em></h4>
 
 
 
@@ -297,13 +297,13 @@ Therefore, we numerically calculate the value of <span class="math inline">\(\si
 ##  [2,] -5.665104e-08
 ##  [3,]  3.426148e-13
 ##  [4,]  1.213978e-07
-##  [5,]  2.196501e-10
-##  [6,] -1.141232e-11
-##  [7,]  3.118616e-13
-##  [8,]  9.429124e-12
-##  [9,] -7.997090e-09
-## [10,]  4.536105e-11
-## [11,]  5.087042e-13</code></pre>
+##  [5,]  2.196499e-10
+##  [6,] -1.141243e-11
+##  [7,]  3.120837e-13
+##  [8,]  9.429568e-12
+##  [9,] -7.997089e-09
+## [10,]  4.536127e-11
+## [11,]  5.089262e-13</code></pre>
 <p>which recovers the value of <span class="math inline">\(\sigma\)</span> used to construct the dataset. There is one additional item of output labelled ‘diff’. This is the value of the difference between the CES index and the comparison index and is returned so that the user can check that the value of this difference is indeed zero. If it is non-zero then it may indicate that <code>uniroot</code> was not able to find a solution, within the specified upper and lower bounds for <span class="math inline">\(\sigma\)</span>. These bounds can be changed with the options <code>upper</code> and <code>lower</code> of the <code>elasticity</code> function. The defaults are 20 and -20 respectively.</p>
 </div>
 <div id="chain-linked-indices-and-the-linking-period-problem" class="section level2">
