@@ -3,7 +3,10 @@
 #' function for the geometric mean of a vector
 #' @param x a numeric vector
 #' @keywords internal
-geomean <- function(x){
+geomean <- function(x, na.rm = TRUE){
+  if(na.rm == TRUE){
+    x <- x[!is.na(x)]
+  }
   return(exp(mean(log(x))))
 }
 
@@ -85,3 +88,5 @@ daysInMonth <- function(x){
   )
 
 }
+
+

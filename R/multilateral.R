@@ -17,9 +17,12 @@ GEKS_w <- function(x,pvar,qvar,pervar,indexMethod="tornqvist",prodID,
   # get the vector of period indices that are inside the window
   pi <- unique(x[[pervar]])
 
+  # initialise a vector for storing NA pair information
+  naPairs <- character()
+
   # for every period in the window...
   for(j in 1:window){
-    
+
     # for every period in the window...
     for(k in 1:window){
       # if j=k then the index is 1
@@ -43,26 +46,35 @@ GEKS_w <- function(x,pvar,qvar,pervar,indexMethod="tornqvist",prodID,
           xt0 <- xt0[xt0[[prodID]] %in% unique(xt1[[prodID]]),]
         }
 
-        # set the price and quantity vectors
-        p0 <- xt0[[pvar]]
-        p1 <- xt1[[pvar]]
-        q0 <- xt0[[qvar]]
-        q1 <- xt1[[qvar]]
+        # set the price index element to NA if there are no
+        # matches
+        if(nrow(xt1)==0){
+          pindices[j,k] <- NA
+          naPairs <- paste0(naPairs, paste0("(",j,",",k,")"), collapse = ",")
+        }
+        else{
+          # set the price and quantity vectors
+          p0 <- xt0[[pvar]]
+          p1 <- xt1[[pvar]]
+          q0 <- xt0[[qvar]]
+          q1 <- xt1[[qvar]]
 
-        # calculate the price index for 'base' period j and 'next' period k
-        switch(tolower(indexMethod),
-               fisher = {pindices[j,k] <- fisher_t(p0,p1,q0,q1)},
-               tornqvist = {pindices[j,k] <- tornqvist_t(p0,p1,q0,q1)})
+          # calculate the price index for 'base' period j and 'next' period k
+          switch(tolower(indexMethod),
+                 fisher = {pindices[j,k] <- fisher_t(p0,p1,q0,q1)},
+                 tornqvist = {pindices[j,k] <- tornqvist_t(p0,p1,q0,q1)})
+        }
+
       }
     }
   }
   # compute the geometric mean of each column of the price indices matrix
-  pgeo <- apply(pindices,2,geomean)
+  pgeo <- apply(pindices, 2, geomean, na.rm = TRUE)
 
   # normalise to the first period
   pgeo <- pgeo/pgeo[1]
 
-  return(pgeo)
+  return(list(pgeo=pgeo, naPairs=naPairs))
 }
 
 #' Compute a GEKS multilateral index
@@ -90,14 +102,8 @@ GEKS_w <- function(x,pvar,qvar,pervar,indexMethod="tornqvist",prodID,
 #' available without changing prior index values. The window and movement splicing methods
 #' first calculate an 'update factor' by calculating the ratio of the final index value
 #' in the new GEKS window to some base period and then multiply the relevant old GEKS
-#' index value by the update factor. If splice=window, the base period is the first
-#' observation of the new GEKS window, and the update factor is multiplied by the
-#' second observation in the old GEKS window. If splice=movement then the base period
-#' is the second to last observation of the new GEKS window, and the update factor is
-#' multiplied by the final observation in the old GEKS window. If splice=mean then
-#' all possible values of the new index value are computed using all possible update
-#' factors and then a geometric mean is computed over these possibilities to arrive
-#' at the final index value.
+#' index value by the update factor. Alternatives are "window","movement","half", and "mean".
+#' See the package vignette for more information.
 #' @examples
 #' # compute a GEKS mutlilateral index with mean splicing
 #' GEKSIndex(CES_sigma_2, pvar = "prices", qvar = "quantities", pervar = "time",
@@ -152,8 +158,17 @@ GEKSIndex <- function(x,pvar,qvar,pervar,indexMethod="tornqvist",prodID,
   xWindow <- x[x[[pervar]] >= 1 & x[[pervar]] <= window,]
 
   # call GEKS_w on first window
-  pGEKS[1:window,1] <- GEKS_w(xWindow,pvar,qvar,pervar,indexMethod,prodID,
-                              sample)
+  tempGEK <- GEKS_w(xWindow,pvar,qvar,pervar,indexMethod,prodID,
+                    sample)
+  pGEKS[1:window,1] <- tempGEK$pgeo
+
+  # initiate a vector of warnings for NAs
+  if(length(tempGEK$naPairs) > 0){
+    naWarn <- paste0("1 to ",window,": ",tempGEK$naPairs,"\n")
+  }
+  else{
+    naWarn <- character()
+  }
 
   # use a splicing method to compute the rest of the index
   if(n>window){
@@ -170,13 +185,26 @@ GEKSIndex <- function(x,pvar,qvar,pervar,indexMethod="tornqvist",prodID,
       xWindow <- x[x[[pervar]]>=i & x[[pervar]] < i + window,]
 
       # call GEKS_w on this window
-      newGEKS <- GEKS_w(xWindow,pvar,qvar,pervar,indexMethod,prodID,
-                         sample)
+      tempGEK <- GEKS_w(xWindow,pvar,qvar,pervar,indexMethod,prodID,
+                        sample)
+      newGEKS <- tempGEK$pgeo
+      if(length(tempGEK$naPairs) > 0){
+        naWarn <- paste0(naWarn, i, " to ",i+window-1,": ",
+                         tempGEK$naPairs, "\n")
+      }
 
       # splice the new datapoint on
       pGEKS[i+window-1,1] <- splice_t(pGEKS[i+window-2,1],oldGEKS,newGEKS,method=splice)
     }
   }
+
+  # if there were periods where there were no overlapping products then
+  # print a warning
+  if(length(naWarn) > 0){
+    warning(paste0("The following windows contained bilateral comparisons where no overlapping products were found: \n",
+                   "Window: Pairs \n",naWarn))
+  }
+
   return(pGEKS)
 }
 
@@ -185,7 +213,8 @@ splice_t <- function(x,oldGEK,newGEK,method="mean"){
   switch(method,
          movement = {pt <- x*splice(length(newGEK)-1,oldGEK,newGEK)},
          window = {pt <- x*splice(1,oldGEK,newGEK)},
-         mean = {pt <- x*meanSplice(oldGEK,newGEK)}
+         mean = {pt <- x*meanSplice(oldGEK,newGEK)},
+         half = {pt <- x*splice(length((newGEK)-1)/2,oldGEK, newGEK)}
   )
   return(pt)
 }
