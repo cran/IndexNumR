@@ -12,7 +12,7 @@
 
 <meta name="author" content="Graham White" />
 
-<meta name="date" content="2019-07-06" />
+<meta name="date" content="2020-03-04" />
 
 <title>IndexNumR: A Package for Index Number Calculation</title>
 
@@ -291,9 +291,6 @@ code > span.al { color: #ff0000; font-weight: bold; }
 code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
 
-
-
-
 </head>
 
 <body>
@@ -302,26 +299,62 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 
 <h1 class="title toc-ignore">IndexNumR: A Package for Index Number Calculation</h1>
-<h4 class="author">Graham White</h4>
-<h4 class="date">2019-07-06</h4>
+<h4 class="author"><em>Graham White</em></h4>
+<h4 class="date"><em>2020-03-04</em></h4>
 
 
+<div id="TOC">
+<ul>
+<li><a href="#introduction">Introduction</a><ul>
+<li><a href="#packages-providing-related-functionality">Packages providing related functionality</a></li>
+</ul></li>
+<li><a href="#the-indexnumr-package">The <em>IndexNumR</em> package</a><ul>
+<li><a href="#data-organisation">Data organisation</a><ul>
+<li><a href="#index-number-input-dataframe">Index number input dataframe</a></li>
+<li><a href="#the-time-period-variable">The time period variable</a></li>
+<li><a href="#time-aggregation">Time aggregation</a></li>
+</ul></li>
+<li><a href="#matched-sample-indexes">Matched-sample indexes</a></li>
+<li><a href="#bilateral-index-numbers">Bilateral index numbers</a><ul>
+<li><a href="#elementary-indexes">Elementary indexes</a></li>
+<li><a href="#fixed-basket-indexes">Fixed-basket indexes</a></li>
+<li><a href="#superlative-indexes">Superlative indexes</a></li>
+<li><a href="#constant-elasticity-of-substitution-ces-framework-indexes">Constant elasticity of substitution (CES) framework indexes</a></li>
+<li><a href="#examples">Examples</a></li>
+</ul></li>
+<li><a href="#the-elasticity-of-substitution-parameter">The elasticity of substitution parameter</a></li>
+<li><a href="#chain-linked-indices-and-the-linking-period-problem">Chain-linked indices and the linking period problem</a><ul>
+<li><a href="#examples-1">Examples</a></li>
+</ul></li>
+<li><a href="#multilateral-index-numbers">Multilateral index numbers</a><ul>
+<li><a href="#the-geks-method">The GEKS method</a></li>
+<li><a href="#extending-the-geks-index">Extending the GEKS index</a></li>
+</ul></li>
+<li><a href="#the-differences-approach-to-index-numbers">The differences approach to index numbers</a><ul>
+<li><a href="#examples-2">Examples</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#development">Development</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</div>
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
 <p><em>IndexNumR</em> is a package for computing indices of aggregate prices or quantities using information on the prices and quantities on multiple products over multiple time periods. Such numbers are routinely computed by statistical agencies to measure, for example, the general change in the level of prices, production inputs and productivity for an economy. Well known examples are consumer price indices and producer price indices.</p>
-<p>In recent years, advances have been made in index number theory to address biases in many well known and widely used index number methods. One potential solution to some of these problems is the adaptation of multilateral methods that have commonly been used in cross-sectional comparisons to the time series context. This involves more computational complexity than earlier methods, but generally requires similar inputs. <em>IndexNumR</em> provides functions that make it easy to estimate indices using common index number methods, as well as the multilateral GEKS method.</p>
+<p>In recent years, advances have been made in index number theory to address biases in many well known and widely used index number methods. One potential solution to some of these problems is the adaptation of multilateral methods that have commonly been used in cross-sectional comparisons to the time series context. This involves more computational complexity than earlier methods, but generally requires similar inputs. <em>IndexNumR</em> provides functions that make it easy to estimate indices using common index number methods, as well as the GEKS multilateral method.</p>
 <div id="packages-providing-related-functionality" class="section level2">
 <h2>Packages providing related functionality</h2>
 <ul>
 <li>micEconIndex: produces price or quantity indices using the Paasche, Laspeyres or Fisher index methods.</li>
-<li>multilaterals: provides multilateral indices for cross-section and panel data.Can also produce bilateral indices using Paasche, Laspeyres, Fisher and Tornqvist methods.</li>
+<li>multilaterals: provides multilateral indices for cross-section and panel data. Can also produce bilateral indices using Paasche, Laspeyres, Fisher and Tornqvist methods.</li>
 <li>productivity: calculates indices of productivity and profitability using common index number methods.</li>
+<li>IndexNumber: calculates Laspeyres, Paasche or Fisher indexes.</li>
 </ul>
 </div>
-<div id="detailed-description-of-indexnumr" class="section level2">
-<h2>Detailed description of <em>IndexNumR</em></h2>
 </div>
+<div id="the-indexnumr-package" class="section level1">
+<h1>The <em>IndexNumR</em> package</h1>
 <div id="data-organisation" class="section level2">
 <h2>Data organisation</h2>
 <p>This first section covers the inputs into the main index number functions and how the data are to be organised to use these functions.</p>
@@ -405,6 +438,12 @@ P(p^{t-1},p^{t}) = \frac{1}{N}\sum_{n=1}^{N}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\
 <li><p>Paasche index <span class="citation">(Paasche 1874)</span>, <span class="math display">\[\begin{equation*}
   P(p^{t-1},p^{t},q^{t}) = \frac{\sum_{n=1}^{N}p^{t}_{n}q^{t}_{n}}{\sum_{n=1}^{N}p^{t-1}_{n}q^{t}_{n}}
 \end{equation*}\]</span></p></li>
+<li><p>Geometric Laspeyres index <span class="math display">\[\begin{equation*}
+  P(p^{t-1},p^{t},q^{t-1}) = \prod_{n=1}^{N}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\right)^{s^{t-1}_{n}},
+\end{equation*}\]</span> where <span class="math inline">\(s^{t}_{n} = \frac{p^{t}_{n}q^{t}_{n}}{\sum_{n=1}^{N}p^{t}_{n}q^{t}_{n}}\)</span> is the share of period <span class="math inline">\(t\)</span> expenditure on good <span class="math inline">\(n\)</span>.</p></li>
+<li><p>Geometric Paasche index <span class="math display">\[\begin{equation*}
+  P(p^{t-1},p^{t},q^{t}) = \prod_{n=1}^{N}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\right)^{s^{t}_{n}},
+\end{equation*}\]</span> where <span class="math inline">\(s^{t}_{n}\)</span> is defined as above for the geometric laspeyres index.</p></li>
 </ul>
 </div>
 <div id="superlative-indexes" class="section level3">
@@ -414,8 +453,8 @@ P(p^{t-1},p^{t}) = \frac{1}{N}\sum_{n=1}^{N}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\
   P(p^{t-1},p^{t},q^{t-1},q^{t}) = [P_{P}P_{L}]^{\frac{1}{2}},
 \end{equation*}\]</span> where <span class="math inline">\(P_{P}\)</span> is the Paasche index and <span class="math inline">\(P_{L}\)</span> is the Laspeyres index. The Fisher index has other representations, but this is the one used by <em>IndexNumR</em> in its computations.</p></li>
 <li><p>Tornqvist index <span class="citation">(Törnqvist 1936; Törnqvist and Törnqvist 1937)</span>, <span class="math display">\[\begin{equation*}
-  P(p^{t-1},p^{t},q^{t-1},q^{t}) = \prod_{n=1}^{N}\left(\frac{p^{t}}{p^{t-1}}\right)^{\left(s^{t-1}_{n}+s^{t}_{n}\right)/2},
-\end{equation*}\]</span> where <span class="math inline">\(s^{t}_{n} = \frac{p^{t}_{n}q^{t}_{n}}{\sum_{n=1}^{N}p^{t}_{n}q^{t}_{n}}\)</span> is the share of period <span class="math inline">\(t\)</span> expenditure on good <span class="math inline">\(n\)</span>.</p></li>
+  P(p^{t-1},p^{t},q^{t-1},q^{t}) = \prod_{n=1}^{N}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\right)^{\left(s^{t-1}_{n}+s^{t}_{n}\right)/2},
+\end{equation*}\]</span> where <span class="math inline">\(s^{t}_{n}\)</span> is defined as above for the geometric laspeyres index.</p></li>
 <li><p>Walsh index, <span class="math display">\[\begin{equation*}
   P(p^{t-1},p^{t},q^{t-1},q^{t}) = \frac{\sum_{n=1}^{N}\sqrt{q^{t-1}_{n}q^{t}_{n}}\cdot p^{t}_{n}}{\sum_{n=1}^{N}\sqrt{q^{t-1}_{n}q^{t}_{n}}\cdot p^{t-1}_{n}}
 \end{equation*}\]</span></p></li>
@@ -439,7 +478,13 @@ P(p^{t-1},p^{t}) = \frac{1}{N}\sum_{n=1}^{N}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\
 <div id="examples" class="section level3">
 <h3>Examples</h3>
 <p>To estimate a simple chained Laspeyres price index,</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">priceIndex</span>(CES_sigma_<span class="dv">2</span>,<span class="dt">pvar =</span> <span class="st">&quot;prices&quot;</span>,<span class="dt">qvar =</span> <span class="st">&quot;quantities&quot;</span>,<span class="dt">pervar =</span> <span class="st">&quot;time&quot;</span>,<span class="dt">prodID =</span> <span class="st">&quot;prodID&quot;</span>, <span class="dt">indexMethod =</span> <span class="st">&quot;laspeyres&quot;</span>, <span class="dt">output =</span> <span class="st">&quot;chained&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">priceIndex</span>(CES_sigma_<span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb5-2" title="2">           <span class="dt">pvar =</span> <span class="st">&quot;prices&quot;</span>,</a>
+<a class="sourceLine" id="cb5-3" title="3">           <span class="dt">qvar =</span> <span class="st">&quot;quantities&quot;</span>,</a>
+<a class="sourceLine" id="cb5-4" title="4">           <span class="dt">pervar =</span> <span class="st">&quot;time&quot;</span>,</a>
+<a class="sourceLine" id="cb5-5" title="5">           <span class="dt">prodID =</span> <span class="st">&quot;prodID&quot;</span>, </a>
+<a class="sourceLine" id="cb5-6" title="6">           <span class="dt">indexMethod =</span> <span class="st">&quot;laspeyres&quot;</span>, </a>
+<a class="sourceLine" id="cb5-7" title="7">           <span class="dt">output =</span> <span class="st">&quot;chained&quot;</span>)</a></code></pre></div>
 <pre><code>##            [,1]
 ##  [1,] 1.0000000
 ##  [2,] 0.9673077
@@ -455,8 +500,16 @@ P(p^{t-1},p^{t}) = \frac{1}{N}\sum_{n=1}^{N}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\
 ## [12,] 2.2000474</code></pre>
 <p>Estimating multiple different index numbers on the same data is straight-forward,</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1">methods &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;laspeyres&quot;</span>,<span class="st">&quot;paasche&quot;</span>,<span class="st">&quot;fisher&quot;</span>,<span class="st">&quot;tornqvist&quot;</span>)</a>
-<a class="sourceLine" id="cb7-2" title="2">prices &lt;-<span class="st"> </span><span class="kw">lapply</span>(methods, <span class="cf">function</span>(x) {<span class="kw">priceIndex</span>(CES_sigma_<span class="dv">2</span>,<span class="dt">pvar =</span> <span class="st">&quot;prices&quot;</span>, <span class="dt">qvar =</span> <span class="st">&quot;quantities&quot;</span>, <span class="dt">pervar =</span> <span class="st">&quot;time&quot;</span>, <span class="dt">prodID =</span> <span class="st">&quot;prodID&quot;</span>, <span class="dt">indexMethod =</span> x, <span class="dt">output =</span> <span class="st">&quot;chained&quot;</span>)})</a>
-<a class="sourceLine" id="cb7-3" title="3"><span class="kw">as.data.frame</span>(prices, <span class="dt">col.names =</span> methods)</a></code></pre></div>
+<a class="sourceLine" id="cb7-2" title="2">prices &lt;-<span class="st"> </span><span class="kw">lapply</span>(methods, </a>
+<a class="sourceLine" id="cb7-3" title="3">                 <span class="cf">function</span>(x) {<span class="kw">priceIndex</span>(CES_sigma_<span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb7-4" title="4">                                         <span class="dt">pvar =</span> <span class="st">&quot;prices&quot;</span>, </a>
+<a class="sourceLine" id="cb7-5" title="5">                                         <span class="dt">qvar =</span> <span class="st">&quot;quantities&quot;</span>, </a>
+<a class="sourceLine" id="cb7-6" title="6">                                         <span class="dt">pervar =</span> <span class="st">&quot;time&quot;</span>, </a>
+<a class="sourceLine" id="cb7-7" title="7">                                         <span class="dt">prodID =</span> <span class="st">&quot;prodID&quot;</span>, </a>
+<a class="sourceLine" id="cb7-8" title="8">                                         <span class="dt">indexMethod =</span> x, </a>
+<a class="sourceLine" id="cb7-9" title="9">                                         <span class="dt">output =</span> <span class="st">&quot;chained&quot;</span>)})</a>
+<a class="sourceLine" id="cb7-10" title="10"></a>
+<a class="sourceLine" id="cb7-11" title="11"><span class="kw">as.data.frame</span>(prices, <span class="dt">col.names =</span> methods)</a></code></pre></div>
 <pre><code>##    laspeyres   paasche    fisher tornqvist
 ## 1  1.0000000 1.0000000 1.0000000 1.0000000
 ## 2  0.9673077 0.8007632 0.8801048 0.8925715
@@ -473,8 +526,8 @@ P(p^{t-1},p^{t}) = \frac{1}{N}\sum_{n=1}^{N}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\
 <p>This illustrates the Laspeyres index’s substantial positive bias, the Paasche index’s substantial negative bias, and the similar estimates produced by the Fisher and Tornqvist superlative index numbers.</p>
 </div>
 </div>
-<div id="elasticity-of-substitution" class="section level2">
-<h2>Elasticity of substitution</h2>
+<div id="the-elasticity-of-substitution-parameter" class="section level2">
+<h2>The elasticity of substitution parameter</h2>
 <p>The CES index number method requires an elasticity of substitution parameter in order to be calculated. <em>IndexNumR</em> provides a function <code>elasticity</code> to estimate the elasticity of substitution parameter, following the method of <span class="citation">(Balk 2000)</span>. The basic method is to solve for the value of the elasticity of substitution that equates the CES index to a comparison index. One comparison index noted by Balk is the ‘current period’ CES index, <span class="math display">\[\begin{equation}
   \left[\sum_{n=1}^{N}s_{n}^{t}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\right)^{-(1-\sigma)}\right]^{\left(\frac{-1}{1-\sigma}\right)}.
 \end{equation}\]</span> Therefore, we numerically calculate the value of <span class="math inline">\(\sigma\)</span> that solves, <span class="math display">\[\begin{equation}
@@ -482,7 +535,12 @@ P(p^{t-1},p^{t}) = \frac{1}{N}\sum_{n=1}^{N}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\
 \end{equation}\]</span></p>
 <p>This is done using the <code>uniroot</code> function of the <em>stats</em> package distributed with base R. Note that this equation can be used to solve for sigma for any <span class="math inline">\(t=2,\cdots,T\)</span>, so there are <span class="math inline">\(T-1\)</span> potential estimates of sigma. The <code>elasticity</code> function will return all <span class="math inline">\(T-1\)</span> estimates as well as the arithmetic mean of the estimates. In addition to the current period CES index, Balk also notes that the Sato-Vartia index can be used, while <span class="citation">(Ivancic, Diewert, and Fox 2010)</span> note that a Fisher index could be used. Any of these three indexes can be used as the comparison index by specifying the <code>compIndex</code> option as either <code>&quot;fisher&quot;</code>, <code>&quot;ces&quot;</code> or <code>&quot;satovartia&quot;</code>. The current period CES index is the default.</p>
 <p>The dataset available with <em>IndexNumR</em>, CES_sigma_2, was calculated assuming a CES cost function with an elasticity of substitution equal to 2. Running the <code>elasticity</code> function on this dataset,</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">elasticity</span>(CES_sigma_<span class="dv">2</span>, <span class="dt">pvar=</span><span class="st">&quot;prices&quot;</span>,<span class="dt">qvar=</span><span class="st">&quot;quantities&quot;</span>,<span class="dt">pervar=</span><span class="st">&quot;time&quot;</span>,<span class="dt">prodID=</span><span class="st">&quot;prodID&quot;</span>,<span class="dt">compIndex=</span><span class="st">&quot;ces&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">elasticity</span>(CES_sigma_<span class="dv">2</span>, </a>
+<a class="sourceLine" id="cb9-2" title="2">           <span class="dt">pvar=</span><span class="st">&quot;prices&quot;</span>,</a>
+<a class="sourceLine" id="cb9-3" title="3">           <span class="dt">qvar=</span><span class="st">&quot;quantities&quot;</span>,</a>
+<a class="sourceLine" id="cb9-4" title="4">           <span class="dt">pervar=</span><span class="st">&quot;time&quot;</span>,</a>
+<a class="sourceLine" id="cb9-5" title="5">           <span class="dt">prodID=</span><span class="st">&quot;prodID&quot;</span>,</a>
+<a class="sourceLine" id="cb9-6" title="6">           <span class="dt">compIndex=</span><span class="st">&quot;ces&quot;</span>)</a></code></pre></div>
 <pre><code>## $sigma
 ## [1] 2
 ## 
@@ -550,8 +608,15 @@ where <span class="math inline">\(M+N\)</span> is the total number of items in t
 <div id="examples-1" class="section level3">
 <h3>Examples</h3>
 <p>Using the log-quadratic measure of relative dissimilarity, the dissimilarity between the periods in the <code>CES_sigma_2</code> dataset is as follows,</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">lq &lt;-<span class="st"> </span><span class="kw">relativeDissimilarity</span>(CES_sigma_<span class="dv">2</span>, <span class="dt">pvar=</span><span class="st">&quot;prices&quot;</span>, <span class="dt">qvar=</span><span class="st">&quot;quantities&quot;</span>, <span class="dt">pervar =</span> <span class="st">&quot;time&quot;</span>, <span class="dt">prodID =</span> <span class="st">&quot;prodID&quot;</span>, <span class="dt">indexMethod =</span> <span class="st">&quot;fisher&quot;</span>, <span class="dt">similarityMethod =</span> <span class="st">&quot;logquadratic&quot;</span>)</a>
-<a class="sourceLine" id="cb11-2" title="2"><span class="kw">head</span>(lq)</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">lq &lt;-<span class="st"> </span><span class="kw">relativeDissimilarity</span>(CES_sigma_<span class="dv">2</span>, </a>
+<a class="sourceLine" id="cb11-2" title="2">                            <span class="dt">pvar=</span><span class="st">&quot;prices&quot;</span>, </a>
+<a class="sourceLine" id="cb11-3" title="3">                            <span class="dt">qvar=</span><span class="st">&quot;quantities&quot;</span>, </a>
+<a class="sourceLine" id="cb11-4" title="4">                            <span class="dt">pervar =</span> <span class="st">&quot;time&quot;</span>, </a>
+<a class="sourceLine" id="cb11-5" title="5">                            <span class="dt">prodID =</span> <span class="st">&quot;prodID&quot;</span>, </a>
+<a class="sourceLine" id="cb11-6" title="6">                            <span class="dt">indexMethod =</span> <span class="st">&quot;fisher&quot;</span>, </a>
+<a class="sourceLine" id="cb11-7" title="7">                            <span class="dt">similarityMethod =</span> <span class="st">&quot;logquadratic&quot;</span>)</a>
+<a class="sourceLine" id="cb11-8" title="8"></a>
+<a class="sourceLine" id="cb11-9" title="9"><span class="kw">head</span>(lq)</a></code></pre></div>
 <pre><code>##   period_i period_j dissimilarity
 ## 1        1        2    0.09726451
 ## 2        1        3    0.02037395
@@ -575,7 +640,14 @@ where <span class="math inline">\(M+N\)</span> is the total number of items in t
 ## 11 11  9   0.002946674
 ## 12 12 11   0.003612044</code></pre>
 <p>To estimate a chained Laspeyres index linking together the periods with maximum similarity as estimated above,</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">priceIndex</span>(CES_sigma_<span class="dv">2</span>,<span class="dt">pvar =</span> <span class="st">&quot;prices&quot;</span>,<span class="dt">qvar =</span> <span class="st">&quot;quantities&quot;</span>,<span class="dt">pervar =</span> <span class="st">&quot;time&quot;</span>,<span class="dt">prodID =</span> <span class="st">&quot;prodID&quot;</span>, <span class="dt">indexMethod =</span> <span class="st">&quot;laspeyres&quot;</span>, <span class="dt">output =</span> <span class="st">&quot;chained&quot;</span>, <span class="dt">chainMethod =</span> <span class="st">&quot;logquadratic&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">priceIndex</span>(CES_sigma_<span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb15-2" title="2">           <span class="dt">pvar =</span> <span class="st">&quot;prices&quot;</span>,</a>
+<a class="sourceLine" id="cb15-3" title="3">           <span class="dt">qvar =</span> <span class="st">&quot;quantities&quot;</span>,</a>
+<a class="sourceLine" id="cb15-4" title="4">           <span class="dt">pervar =</span> <span class="st">&quot;time&quot;</span>,</a>
+<a class="sourceLine" id="cb15-5" title="5">           <span class="dt">prodID =</span> <span class="st">&quot;prodID&quot;</span>, </a>
+<a class="sourceLine" id="cb15-6" title="6">           <span class="dt">indexMethod =</span> <span class="st">&quot;laspeyres&quot;</span>, </a>
+<a class="sourceLine" id="cb15-7" title="7">           <span class="dt">output =</span> <span class="st">&quot;chained&quot;</span>, </a>
+<a class="sourceLine" id="cb15-8" title="8">           <span class="dt">chainMethod =</span> <span class="st">&quot;logquadratic&quot;</span>)</a></code></pre></div>
 <pre><code>##            [,1]
 ##  [1,] 1.0000000
 ##  [2,] 0.9673077
@@ -593,7 +665,10 @@ where <span class="math inline">\(M+N\)</span> is the total number of items in t
 </div>
 <div id="multilateral-index-numbers" class="section level2">
 <h2>Multilateral index numbers</h2>
-<p>Multilateral index number methods use data from multiple periods to compute each term in the index. <em>IndexNumR</em> provides the function <code>GEKSIndex</code> to use the GEKS multilateral index number method. The GEKS method is attributable to Gini <span class="citation">(Gini 1931)</span>, Eltito and Koves <span class="citation">(Eltetö and Köves 1964)</span>, and Szulc <span class="citation">(Szulc 1964)</span> in the cross-sectional context. The idea of adapting the method to the time series context is due to Balk <span class="citation">(Balk 1981)</span>, and developed further by Ivancic, Diewert and Fox <span class="citation">(Ivancic, Diewert, and Fox 2011)</span>.</p>
+<p>Multilateral index number methods use data from multiple periods to compute each term in the index. <em>IndexNumR</em> provides the function <code>GEKSIndex</code> to use the GEKS multilateral index number method.</p>
+<div id="the-geks-method" class="section level3">
+<h3>The GEKS method</h3>
+<p>The GEKS method is attributable to Gini <span class="citation">(Gini 1931)</span>, Eltito and Koves <span class="citation">(Eltetö and Köves 1964)</span>, and Szulc <span class="citation">(Szulc 1964)</span> in the cross-sectional context. The idea of adapting the method to the time series context is due to Balk <span class="citation">(Balk 1981)</span>, and developed further by Ivancic, Diewert and Fox <span class="citation">(Ivancic, Diewert, and Fox 2011)</span>.</p>
 <p>The user must choose the size of the window over which to apply the GEKS method, typically one or two years of data plus one period to account for seasonality. Denote this as <span class="math inline">\(w\)</span>.The basic method followed by the function <code>GEKSIndex</code> is as follows. Choose a period, denoted period <span class="math inline">\(k\)</span>, within the window as the base period. Calculate a bilateral index number between period <span class="math inline">\(k\)</span> and every other period in the window. Repeat this for all possible choices of <span class="math inline">\(k\)</span>. This gives a matrix of size <span class="math inline">\(w\times w\)</span> of bilateral indexes between all possible pairs of periods within the window. Then compute the GEKS indexes for the first <span class="math inline">\(w\)</span> periods as, <span class="math display">\[\begin{equation}
   \left[ \prod_{k=1}^{w}P^{k,1} \right]^{1/w}, \left[ \prod_{k=1}^{w}P^{k,2} \right]^{1/w}, \cdots, \left[ \prod_{k=1}^{w}P^{k,w} \right]^{1/w},
 \end{equation}\]</span> where the term <span class="math inline">\(P^{k,t}\)</span> is the bilateral index between period <span class="math inline">\(t\)</span> and base period <span class="math inline">\(k\)</span>. <em>IndexNumR</em> offers the Fisher and Tornqvist index number methods for the index <span class="math inline">\(P\)</span> via the <code>indexMethod</code> option. The Tornqvist index method is the default. The <span class="math inline">\(w\times w\)</span> matrix of bilateral indexes is as follows, <span class="math display">\[P =
@@ -602,8 +677,9 @@ where <span class="math inline">\(M+N\)</span> is the total number of items in t
   \vdots &amp; \ddots &amp; \vdots \\
   P^{w,1} &amp; \cdots &amp; P^{w,w}
 \end{pmatrix}
-\]</span> So that the first term of the GEKS index is the geometric mean of the elements in the first column of the above matrix, the second term is the geometric mean of the second column, and so on. Note that <code>IndexNumR</code> makes use of two facts about the matrix above to speed up computation: it is (inversely) symmetric so that <span class="math inline">\(P^{j,k} = 1/P^{k,j}\)</span>; and the diagonal elements are 1.</p>
+\]</span> So that the first term of the GEKS index is the geometric mean of the elements in the first column of the above matrix, the second term is the geometric mean of the second column, and so on. Note that <em>IndexNumR</em> makes use of two facts about the matrix above to speed up computation: it is (inversely) symmetric so that <span class="math inline">\(P^{j,k} = 1/P^{k,j}\)</span>; and the diagonal elements are 1.</p>
 <p>The indexes are then normalised by dividing by the first term, to give an index for the first <span class="math inline">\(w\)</span> periods that starts at 1. If the index only covers <span class="math inline">\(w\)</span> periods then no further calculation is required. However, if there are <span class="math inline">\(T&gt;w\)</span> periods in the dataset then the index must be extended.</p>
+</div>
 <div id="extending-the-geks-index" class="section level3">
 <h3>Extending the GEKS index</h3>
 <p>Extending a GEKS index can be done in a multitude of ways. Statistical agencies generally do not revise price indices like the consumer price index, so the methods offered by <em>IndexNumR</em> to extend the GEKS index are methods that do not lead to revisions. More specifically, these are called <em>splicing methods</em> and the three options available are the <em>movement</em>, <em>window</em> and <em>mean splice</em>. The idea is that we start by moving the window forward by one period and calculate a GEKS index for the new window. There will be <span class="math inline">\(w-1\)</span> overlapping periods between the initial GEKS index and the GEKS index computed on the window that has been rolled forward one period. Any one of these overlapping periods can be used to extend the GEKS index.</p>
@@ -620,7 +696,14 @@ P_{GEKS}^{w+1} = P_{GEKS}^{w} \times \left( \prod_{t=1}^{w-1} \frac{P_{NEW}^{w+1
 \end{equation}\]</span> The mean splice uses the geometric mean of the movements between the last period and every other period in the window to extend the original index.</p></li>
 </ul>
 <p>The splicing methods are used in this fashion to extend the series up to the final period in the data.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">GEKSIndex</span>(CES_sigma_<span class="dv">2</span>, <span class="dt">pvar =</span> <span class="st">&quot;prices&quot;</span>, <span class="dt">qvar =</span> <span class="st">&quot;quantities&quot;</span>, <span class="dt">pervar =</span> <span class="st">&quot;time&quot;</span>, <span class="dt">prodID =</span> <span class="st">&quot;prodID&quot;</span>, <span class="dt">indexMethod =</span> <span class="st">&quot;tornqvist&quot;</span>, <span class="dt">window=</span><span class="dv">11</span>, <span class="dt">splice =</span> <span class="st">&quot;mean&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">GEKSIndex</span>(CES_sigma_<span class="dv">2</span>, </a>
+<a class="sourceLine" id="cb17-2" title="2">          <span class="dt">pvar =</span> <span class="st">&quot;prices&quot;</span>, </a>
+<a class="sourceLine" id="cb17-3" title="3">          <span class="dt">qvar =</span> <span class="st">&quot;quantities&quot;</span>, </a>
+<a class="sourceLine" id="cb17-4" title="4">          <span class="dt">pervar =</span> <span class="st">&quot;time&quot;</span>, </a>
+<a class="sourceLine" id="cb17-5" title="5">          <span class="dt">prodID =</span> <span class="st">&quot;prodID&quot;</span>, </a>
+<a class="sourceLine" id="cb17-6" title="6">          <span class="dt">indexMethod =</span> <span class="st">&quot;tornqvist&quot;</span>, </a>
+<a class="sourceLine" id="cb17-7" title="7">          <span class="dt">window=</span><span class="dv">11</span>, </a>
+<a class="sourceLine" id="cb17-8" title="8">          <span class="dt">splice =</span> <span class="st">&quot;mean&quot;</span>)</a></code></pre></div>
 <pre><code>##            [,1]
 ##  [1,] 1.0000000
 ##  [2,] 0.8927314
@@ -634,6 +717,72 @@ P_{GEKS}^{w+1} = P_{GEKS}^{w} \times \left( \prod_{t=1}^{w-1} \frac{P_{NEW}^{w+1
 ## [10,] 0.9501914
 ## [11,] 1.1277725
 ## [12,] 1.1330748</code></pre>
+</div>
+</div>
+<div id="the-differences-approach-to-index-numbers" class="section level2">
+<h2>The differences approach to index numbers</h2>
+<p>The above index number methods are derived based on a ratio approach, which decomposes the value change from one period to the next into the product of a price index and a quantity index. An alternative approach is to decompose value change into the sum of a price indicator and a quantity indicator. The theory dates back to the 1920s, and an excellent paper on this approach has been written by Diewert <span class="citation">(Diewert 2005)</span>. There are a number of methods available for computing the indicator, and <em>IndexNumR</em> exposes the following, via the <code>priceIndicator</code> function:</p>
+<ul>
+<li><p>Laspeyres indicator <span class="math display">\[\begin{equation}
+I(p^{t-1}, p^{t}) = \sum_{n=1}^{N}q_{n}^{t-1}\times(p_{n}^{t}-p_{n}^{t-1})
+\end{equation}\]</span></p></li>
+<li><p>Paasche indicator <span class="math display">\[\begin{equation}
+I(p^{t-1}, p^{t}) = \sum_{n=1}^{N}q_{n}^{t}\times(p_{n}^{t}-p_{n}^{t-1})
+\end{equation}\]</span></p></li>
+<li><p>Bennet indicator <span class="citation">(Bennet 1920)</span> <span class="math display">\[\begin{equation}
+I(p^{t-1}, p^{t}) = \sum_{n=1}^{N} \frac{(q_{n}^{t}+q_{n}^{t-1})}{2} \times(p_{n}^{t}-p_{n}^{t-1})
+\end{equation}\]</span></p></li>
+<li><p>Montgomery indicator <span class="citation">(Montgomery 1929)</span> <span class="math display">\[\begin{equation}
+I(p^{t-1}, p^{t}) = \sum_{n=1}^{N} \frac{p_{n}^{t}q_{n}^{t}+p_{n}^{t-1}q_{n}^{t-1}}{log(p_{n}^{t}q_{n}^{t}) - log(p_{n}^{t-1}q_{n}^{t-1})} \times\left(\frac{p_{n}^{t}}{p_{n}^{t-1}}\right)
+\end{equation}\]</span></p></li>
+</ul>
+<div id="examples-2" class="section level3">
+<h3>Examples</h3>
+<p>Price indicators for the <code>CES_sigma_2</code> dataset are as follows:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1">methods &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;laspeyres&quot;</span>, <span class="st">&quot;paasche&quot;</span>, <span class="st">&quot;bennet&quot;</span>, <span class="st">&quot;montgomery&quot;</span>)</a>
+<a class="sourceLine" id="cb19-2" title="2"></a>
+<a class="sourceLine" id="cb19-3" title="3">p &lt;-<span class="st"> </span><span class="kw">lapply</span>(methods, <span class="cf">function</span>(x) {<span class="kw">priceIndicator</span>(CES_sigma_<span class="dv">2</span>, </a>
+<a class="sourceLine" id="cb19-4" title="4">                                                 <span class="dt">pvar =</span> <span class="st">&quot;prices&quot;</span>, </a>
+<a class="sourceLine" id="cb19-5" title="5">                                                 <span class="dt">qvar =</span> <span class="st">&quot;quantities&quot;</span>, </a>
+<a class="sourceLine" id="cb19-6" title="6">                                                 <span class="dt">pervar =</span> <span class="st">&quot;time&quot;</span>, </a>
+<a class="sourceLine" id="cb19-7" title="7">                                                 <span class="dt">prodID =</span> <span class="st">&quot;prodID&quot;</span>, </a>
+<a class="sourceLine" id="cb19-8" title="8">                                                 <span class="dt">method =</span> x)})</a>
+<a class="sourceLine" id="cb19-9" title="9"></a>
+<a class="sourceLine" id="cb19-10" title="10"><span class="kw">as.data.frame</span>(p, <span class="dt">col.names =</span> methods)</a></code></pre></div>
+<pre><code>##     laspeyres     paasche      bennet  montgomery
+## 1          NA          NA          NA          NA
+## 2  -0.3269231 -3.23451167 -1.78071737 -1.27874802
+## 3   4.3441768  1.19889566  2.77153621  2.23764163
+## 4   0.4061429  0.33835480  0.37224887  0.37329461
+## 5  -0.8066580 -5.65501233 -3.23083515 -2.35138599
+## 6   5.8451382  1.89061744  3.86787782  3.23912451
+## 7  -0.6114830 -0.72404798 -0.66776546 -0.66571059
+## 8  -1.6992746 -4.76683536 -3.23305498 -2.74535253
+## 9   4.5203554  1.38856453  2.95445995  2.45168559
+## 10 -1.0274652 -4.49985294 -2.76365909 -2.28761791
+## 11  4.9221471  1.65051935  3.28633320  2.85483403
+## 12  0.1396069  0.02503502  0.08232098  0.08391295</code></pre>
+<p>Quantity indicators can also be produced using the same methods as outlined above via the <code>quantityIndicator</code> function. This allows for the value change from one period to the next to be decomposed into price and quantity movements. To facilitate this, <em>IndexNumR</em> contains the <code>valueDecomposition</code> function, which can be used as follows to produce a decomposition of the value change for CES_sigma_2 using a Bennet indicator:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1"><span class="kw">valueDecomposition</span>(CES_sigma_<span class="dv">2</span>, </a>
+<a class="sourceLine" id="cb21-2" title="2">                   <span class="dt">pvar =</span> <span class="st">&quot;prices&quot;</span>,  </a>
+<a class="sourceLine" id="cb21-3" title="3">                   <span class="dt">qvar =</span> <span class="st">&quot;quantities&quot;</span>,  </a>
+<a class="sourceLine" id="cb21-4" title="4">                   <span class="dt">pervar =</span> <span class="st">&quot;time&quot;</span>,  </a>
+<a class="sourceLine" id="cb21-5" title="5">                   <span class="dt">prodID =</span> <span class="st">&quot;prodID&quot;</span>,  </a>
+<a class="sourceLine" id="cb21-6" title="6">                   <span class="dt">priceMethod =</span> <span class="st">&quot;bennet&quot;</span>)</a></code></pre></div>
+<pre><code>##          price   quantity changes values
+## 1           NA         NA      NA     NA
+## 2  -1.78071737  4.7807174       3     13
+## 3   2.77153621 -4.7715362      -2     11
+## 4   0.37224887  0.6277511       1     12
+## 5  -3.23083515  6.2308351       3     15
+## 6   3.86787782 -5.8678778      -2     13
+## 7  -0.66776546  1.6677655       1     14
+## 8  -3.23305498  6.2330550       3     17
+## 9   2.95445995 -4.9544600      -2     15
+## 10 -2.76365909  5.7636591       3     18
+## 11  3.28633320 -5.2863332      -2     16
+## 12  0.08232098  0.9176790       1     17</code></pre>
+<p>Note that for this decomposition, the method is specified for the price indicator and <em>IndexNumR</em> uses the appropriate quantity indicator. For Bennet and Montgomery indicators the same method is used for the quantity indicator as for the price indicator. If a Laspeyres price indicator is requested then the corresponding volume indicator is a Paasche indicator. The reverse is true if the Paasche indicator is used for prices.</p>
 </div>
 </div>
 </div>
@@ -650,11 +799,17 @@ P_{GEKS}^{w+1} = P_{GEKS}^{w} \times \left( \prod_{t=1}^{w-1} \frac{P_{NEW}^{w+1
 <div id="ref-balk:2000">
 <p>———. 2000. “On Curing the CPI’s Substitution and New Goods Bias.” Research Paper 0005. Statistics Netherlands.</p>
 </div>
+<div id="ref-bennet:1920">
+<p>Bennet, T. L. 1920. “The Theory of Measurement of Changes in Cost of Living.” <em>Journal of the Royal Statistics Society</em> 83: 455–62.</p>
+</div>
 <div id="ref-carli:1804">
 <p>Carli, G-R. 1804. “Del Valore E Della Proporzione Dei Metalli Monetati.” <em>Scrittori Classici Italiani Di Economia Politica</em> 13: 297–366.</p>
 </div>
 <div id="ref-Diewert:2002">
 <p>Diewert, Walter E. 2002. “Similarity and Dissimilarity Indexes: An Axiomatic Approach.” Discussion Paper 02–10. Department of Economics, University of British Columbia.</p>
+</div>
+<div id="ref-diewert:2005">
+<p>———. 2005. “Index Number Theory Using Differences Rather Than Ratios.” <em>American Journal of Economics and Sociology</em> 64 (1): 331–60.</p>
 </div>
 <div id="ref-df:2017">
 <p>Diewert, W. Erwin, and Kevin Fox. 2017. “Substitution Bias in Multilateral Methods for Cpi Construction Using Scanner Data.” Discussion Paper 17–02. Department of Economics, University of British Columbia.</p>
@@ -694,6 +849,9 @@ P_{GEKS}^{w+1} = P_{GEKS}^{w} \times \left( \prod_{t=1}^{w-1} \frac{P_{NEW}^{w+1
 </div>
 <div id="ref-lloyd:1975">
 <p>Lloyd, P J. 1975. “Substitution Effects and Biases in Nontrue Price Indices.” <em>The American Economic Review</em> 65 (3): 301–13.</p>
+</div>
+<div id="ref-montgomery:1929">
+<p>Montgomery, J. K. 1929. “Is There a Theoretically Correct Price Index of a Group of Commodities?” Poliglotta (privately printed paper, 16 pages). Rome: Roma L’Universale Tipogr.</p>
 </div>
 <div id="ref-Moult:1996">
 <p>Moulton, B R. 1996. “Constant Elasticity Cost-of-Living Index in Share-Relative Form.” Mimeo. Bureau of Labour Statistics.</p>

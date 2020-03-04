@@ -1,8 +1,26 @@
+# IndexNumR: a package for index number computation
+# Copyright (C) 2018 Graham J. White (g.white@unswalumni.com)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+
+
 #' Dutot
 #'
 #' compute a bilateral Dutot index for a single period
 #'
 #' @keywords internal
+#' @noRd
 dutot_t <- function(p0,p1){
   M0 <- length(p0)
   M1 <- length(p1)
@@ -14,6 +32,7 @@ dutot_t <- function(p0,p1){
 #' compute a bilateral Carli index for a single period
 #'
 #' @keywords internal
+#' @noRd
 carli_t <- function(p0,p1){
   return((1/length(p0))*sum(p1/p0))
 }
@@ -23,6 +42,7 @@ carli_t <- function(p0,p1){
 #' compute a bilateral Jevons index for a single period
 #'
 #' @keywords internal
+#' @noRd
 jevons_t <- function(p0,p1){
   return(prod((p1/p0)^(1/length(p0))))
 }
@@ -32,6 +52,7 @@ jevons_t <- function(p0,p1){
 #' compute a bilateral Harmonic mean index for a single period
 #'
 #' @keywords internal
+#' @noRd
 harmonic_t <- function(p0,p1){
   return((1/length(p0)*sum((p1/p0)^-1))^-1)
 }
@@ -41,6 +62,7 @@ harmonic_t <- function(p0,p1){
 #'compute a bilateral CSWD index for a single period
 #'
 #' @keywords internal
+#' @noRd
 cswd_t <- function(p0,p1){
   return(sqrt((carli_t(p0,p1)*harmonic_t(p0,p1))))
 }
@@ -50,6 +72,7 @@ cswd_t <- function(p0,p1){
 #' compute a bilateral fixed base index for a single period
 #'
 #' @keywords internal
+#' @noRd
 fixed_t <- function(p0,p1,q){
   return(sum(p1*q)/sum(p0*q))
 }
@@ -59,6 +82,7 @@ fixed_t <- function(p0,p1,q){
 #' compute a bilateral Fisher index for a single period
 #'
 #' @keywords internal
+#' @noRd
 fisher_t <- function(p0,p1,q0,q1){
   las <- fixed_t(p0,p1,q0)
   pas <- fixed_t(p0,p1,q1)
@@ -70,6 +94,7 @@ fisher_t <- function(p0,p1,q0,q1){
 #' compute a bilateral Tornqvist index for a single period
 #'
 #' @keywords internal
+#' @noRd
 tornqvist_t <- function(p0,p1,q0,q1){
   exp0 <- sum(p0*q0)
   exp1 <- sum(p1*q1)
@@ -82,6 +107,7 @@ tornqvist_t <- function(p0,p1,q0,q1){
 #'
 #' compute a bilateral Sato-Vartia index
 #' @keywords internal
+#' @noRd
 satoVartia_t <- function(p0,p1,q0,q1){
   exp0 <- sum(p0*q0)
   exp1 <- sum(p1*q1)
@@ -97,6 +123,7 @@ satoVartia_t <- function(p0,p1,q0,q1){
 #' compute a bilateral Walsh index
 #'
 #' @keywords internal
+#' @noRd
 walsh_t <- function(p0,p1,q0,q1){
   return(sum(p1*sqrt(q0*q1))/sum(p0*sqrt(q0*q1)))
 }
@@ -104,6 +131,7 @@ walsh_t <- function(p0,p1,q0,q1){
 #' Lloyd-Moulton index, period 0 share
 #'
 #' @keywords internal
+#' @noRd
 lloydMoulton_t0 <- function(p0,p1,q,sigma){
   e <- sum(p0*q)
   s0 <- (p0*q)/e
@@ -113,10 +141,31 @@ lloydMoulton_t0 <- function(p0,p1,q,sigma){
 #' Lloyd-Moulton index, current period share
 #'
 #' @keywords internal
+#' @noRd
 lloydMoulton_tc <- function(p0,p1,q,sigma){
   e <- sum(p1*q)
   s1 <- (p1*q)/e
   return(sum((s1*((p1/p0)^-(1-sigma))))^(-1/(1-sigma)))
+}
+
+#' Geometric laspeyres index
+#'
+#' @keywords internal
+#' @noRd
+geomLaspeyres_t <- function(p0, p1, q0, q1){
+  exp0 <- sum(p0*q0)
+  s0 <- (p0*q0)/exp0
+  return(prod((p1/p0)^s0))
+}
+
+#' Geometric paasche index
+#'
+#' @keywords internal
+#' @noRd
+geomPaasche_t <- function(p0, p1, q0, q1){
+  exp1 <- sum(p1*q1)
+  s1 <- (p1*q1)/exp1
+  return(prod((p1/p0)^s1))
 }
 
 #' Computes a bilateral price index
@@ -133,7 +182,7 @@ lloydMoulton_tc <- function(p0,p1,q,sigma){
 #' There may be observations on multiple products for each time period.
 #' @param indexMethod A character string to select the index number method. Valid index
 #' number methods are dutot, carli, jevons, laspeyres, paasche, fisher, cswd,
-#' harmonic, tornqvist, satovartia, walsh and CES.
+#' harmonic, tornqvist, satovartia, walsh, CES, geomLaspeyres and geomPaasche.
 #' @param sample A character string specifying whether a matched sample
 #' should be used.
 #' @param output A character string specifying whether a chained (output="chained")
@@ -165,13 +214,15 @@ lloydMoulton_tc <- function(p0,p1,q,sigma){
 #' prodID = "prodID", indexMethod = "tornqvist", output="chained",
 #' chainMethod = "logquadratic")
 #' @export
-priceIndex <- function(x,pvar,qvar,pervar,indexMethod="laspeyres",prodID,
-                       sample="matched",output="pop",chainMethod="pop",
-                       sigma=1.0001, ...){
+priceIndex <- function(x, pvar, qvar, pervar, indexMethod = "laspeyres", prodID,
+                       sample = "matched", output = "pop", chainMethod = "pop",
+                       sigma = 1.0001, ...){
 
   # check that a valid method is chosen
   validMethods <- c("dutot","carli","jevons","harmonic","cswd","laspeyres",
-                    "paasche","fisher","tornqvist","satovartia","walsh","ces")
+                    "paasche","fisher","tornqvist","satovartia","walsh","ces",
+                    "geomlaspeyres", "geompaasche")
+
   if(!(tolower(indexMethod) %in% validMethods)){
     stop("Not a valid index number method.")
   }
@@ -182,6 +233,15 @@ priceIndex <- function(x,pvar,qvar,pervar,indexMethod="laspeyres",prodID,
     stop("Not a valid output type. Please choose from chained, fixedbase or pop.")
   }
 
+  # check valid column names are given
+  colNameCheck <- checkNames(x, c(pvar, qvar, pervar, prodID))
+  if(colNameCheck$result == FALSE){
+    stop(colNameCheck$message)
+  }
+
+  # check column types
+  x <- checkTypes(x, pvar, qvar, pervar)
+
   # check that the time period variable is continuous
   timeCheck <- isContinuous(x[[pervar]])
   if(timeCheck$result == FALSE){
@@ -189,11 +249,8 @@ priceIndex <- function(x,pvar,qvar,pervar,indexMethod="laspeyres",prodID,
                 "Missing periods:", timeCheck$missing))
   }
 
-  # check valid column names are given
-  colNameCheck <- checkNames(x, c(pvar, qvar, pervar, prodID))
-  if(colNameCheck$result == FALSE){
-    stop(colNameCheck$message)
-  }
+  # sort the dataset by time period and product ID
+  x <- x[order(x[[pervar]], x[[prodID]]),]
 
   # initialise some things
   n <- max(x[[pervar]],na.rm = TRUE)
@@ -270,7 +327,9 @@ priceIndex <- function(x,pvar,qvar,pervar,indexMethod="laspeyres",prodID,
              tornqvist = {plist[i,1] <- tornqvist_t(p0,p1,q0,q1)},
              satovartia = {plist[i,1] <- satoVartia_t(p0,p1,q0,q1)},
              walsh = {plist[i,1] <- walsh_t(p0,p1,q0,q1)},
-             ces = {plist[i,1] <- lloydMoulton_t0(p0,p1,q0,sigma = sigma)}
+             ces = {plist[i,1] <- lloydMoulton_t0(p0,p1,q0,sigma = sigma)},
+             geomlaspeyres = {plist[i,1] <- geomLaspeyres_t(p0, p1, q0, q1)},
+             geompaasche = {plist[i,1] <- geomPaasche_t(p0, p1, q0, q1)}
       )
 
       # if similarity chain linking then multiply the index by the link period index
