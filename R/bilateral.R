@@ -168,6 +168,54 @@ geomPaasche_t <- function(p0, p1, q0, q1){
   return(prod((p1/p0)^s1))
 }
 
+#' time product dummy
+#'
+#' @keywords internal
+#' @noRd
+tpd_t <- function(p0, p1, q0, q1, biasAdjust){
+
+  exp0 <- sum(p0*q0)
+  exp1 <- sum(p1*q1)
+  s0 <- (p0*q0)/exp0
+  s1 <- (p1*q1)/exp1
+
+  df1 <- data.frame(lnP = log(p1),
+                    D = 1,
+                    s = s1,
+                    product = as.factor(seq_along(p1)))
+
+  df0 <- data.frame(lnP = log(p0),
+                    D = 0,
+                    s = s0,
+                    product = as.factor(seq_along(p0)))
+
+  regData <- rbind(df0, df1)
+
+  reg <- with(regData, stats::lm(lnP ~ D + product, weights = s))
+
+  if(biasAdjust){
+    coeffs <- kennedyBeta(reg)
+  }
+  else {
+    coeffs <- stats::coef(reg)
+  }
+
+  b <- coeffs[which(names(coeffs) == "D")]
+
+  return(exp(b))
+}
+
+#' Geary-Khamis bilateral
+#'
+#' @keywords internal
+#' @noRd
+gk_t <- function(p0, p1, q0, q1){
+
+  h <- 2/(1/q0+1/q1)
+  return(sum(p1*h)/sum(p0*h))
+
+}
+
 #' Computes a bilateral price index
 #'
 #' A function to compute a price index given data on products over time
@@ -182,11 +230,12 @@ geomPaasche_t <- function(p0, p1, q0, q1){
 #' There may be observations on multiple products for each time period.
 #' @param indexMethod A character string to select the index number method. Valid index
 #' number methods are dutot, carli, jevons, laspeyres, paasche, fisher, cswd,
-#' harmonic, tornqvist, satovartia, walsh, CES, geomLaspeyres and geomPaasche.
+#' harmonic, tornqvist, satovartia, walsh, CES, geomLaspeyres, geomPaasche, tpd and
+#' Geary-Khamis.
 #' @param sample A character string specifying whether a matched sample
 #' should be used.
 #' @param output A character string specifying whether a chained (output="chained")
-#' , fixed base (output="fixedBase") or period-on-period (output="pop")
+#' , fixed base (output="fixedbase") or period-on-period (output="pop")
 #' price index numbers should be returned. Default is period-on-period.
 #' @param chainMethod A character string specifying the method of chain linking
 #' to use if the output option is set to "chained".
@@ -197,6 +246,10 @@ geomPaasche_t <- function(p0, p1, q0, q1){
 #' The default is period-on-period. Additional parameters can be passed to the
 #' mixScaleDissimilarity function using ...
 #' @param sigma The elasticity of substitution for the CES index method.
+#' @param basePeriod The period to be used as the base when 'fixedbase' output is
+#' chosen. Default is 1 (the first period).
+#' @param biasAdjust whether to adjust for bias in the coefficients in the bilateral
+#' TPD index. The default is TRUE.
 #' @param ... this is used to pass additional parameters to the mixScaleDissimilarity
 #' function.
 #' @examples
@@ -216,12 +269,12 @@ geomPaasche_t <- function(p0, p1, q0, q1){
 #' @export
 priceIndex <- function(x, pvar, qvar, pervar, indexMethod = "laspeyres", prodID,
                        sample = "matched", output = "pop", chainMethod = "pop",
-                       sigma = 1.0001, ...){
+                       sigma = 1.0001, basePeriod = 1, biasAdjust = TRUE, ...){
 
   # check that a valid method is chosen
   validMethods <- c("dutot","carli","jevons","harmonic","cswd","laspeyres",
                     "paasche","fisher","tornqvist","satovartia","walsh","ces",
-                    "geomlaspeyres", "geompaasche")
+                    "geomlaspeyres", "geompaasche", "tpd", "gk")
 
   if(!(tolower(indexMethod) %in% validMethods)){
     stop("Not a valid index number method.")
@@ -277,8 +330,8 @@ priceIndex <- function(x, pvar, qvar, pervar, indexMethod = "laspeyres", prodID,
   }
 
   # if fixed base requested, set xt0 to the first period data
-  if(tolower(output)=="fixedbase"){
-    xt0 <- x[x[[pervar]]==1,]
+  if(tolower(output) == "fixedbase"){
+    xt0 <- x[x[[pervar]] == basePeriod,]
   }
 
   for(i in 2:n){
@@ -297,8 +350,11 @@ priceIndex <- function(x, pvar, qvar, pervar, indexMethod = "laspeyres", prodID,
 
     # if matching requested then remove unmatched items
     if(sample=="matched"){
+
+      # remove unmatched products
       xt1 <- xt1[xt1[[prodID]] %in% unique(xt0[[prodID]]),]
       xt0 <- xt0[xt0[[prodID]] %in% unique(xt1[[prodID]]),]
+
     }
 
     # set the price index element to NA if there are no
@@ -329,7 +385,9 @@ priceIndex <- function(x, pvar, qvar, pervar, indexMethod = "laspeyres", prodID,
              walsh = {plist[i,1] <- walsh_t(p0,p1,q0,q1)},
              ces = {plist[i,1] <- lloydMoulton_t0(p0,p1,q0,sigma = sigma)},
              geomlaspeyres = {plist[i,1] <- geomLaspeyres_t(p0, p1, q0, q1)},
-             geompaasche = {plist[i,1] <- geomPaasche_t(p0, p1, q0, q1)}
+             geompaasche = {plist[i,1] <- geomPaasche_t(p0, p1, q0, q1)},
+             tpd = {plist[i,1] <- tpd_t(p0, p1, q0, q1, biasAdjust)},
+             gk = {plist[i,1] <- gk_t(p0, p1, q0, q1)}
       )
 
       # if similarity chain linking then multiply the index by the link period index
@@ -357,32 +415,7 @@ priceIndex <- function(x, pvar, qvar, pervar, indexMethod = "laspeyres", prodID,
 #'
 #' A function to compute a quantity index given data on products over time
 #'
-#' @param x A dataframe containing price, quantity, a time period identifier
-#' and a product identifier. It must have column names.
-#' @param pvar A character string for the name of the price variable
-#' @param qvar A character string for the name of the quantity variable
-#' @param prodID A character string for the name of the product identifier
-#' @param pervar A character string for the name of the time variable. This variable
-#' must contain integers starting at period 1 and increasing in increments of 1 period.
-#' There may be observations on multiple products for each time period.
-#' @param indexMethod A character string to select the index number method. Valid index
-#' number methods are dutot, carli, jevons, laspeyres, paasche, fisher, cswd,
-#' harmonic, tornqvist, satovartia, walsh and CES.
-#' @param sample A character string specifying whether a matched sample
-#' should be used.
-#' @param output A character string specifying whether a chained, fixed base or
-#' period-on-period price index numbers should be returned.
-#' @param chainMethod A character string specifying the method of chain linking
-#' to use if the output option is set to "chained".
-#' Valid options are "pop" for period-on-period, and similarity chain linked
-#' options "plspread" for the Paasche-Laspeyres spread, "asymplinear" for
-#' weighted asymptotically linear, "logquadratic" for the weighted log-quadratic,
-#' and "mixScale" for the mix, scale or absolute dissimilarity measures.
-#' The default is period-on-period. Additional parameters can be passed to the
-#' mixScaleDissimilarity function using ...
-#' @param sigma The elasticity of substitution for the CES index method.
-#' @param ... this is used to pass additional parameters to the mixScaleDissimilarity
-#' function.
+#' @inheritParams priceIndex
 #' @examples
 #' # chained Fisher quantity index for the CES_sigma_2 dataset
 #' quantityIndex(CES_sigma_2, pvar="prices", qvar="quantities", pervar="time",
@@ -390,8 +423,9 @@ priceIndex <- function(x, pvar, qvar, pervar, indexMethod = "laspeyres", prodID,
 #' @export
 quantityIndex <- function(x,pvar,qvar,pervar,indexMethod="laspeyres", prodID,
                           sample="matched", output="pop", chainMethod="pop",
-                          sigma=1.0001, ...){
+                          sigma=1.0001, basePeriod = 1, biasAdjust = TRUE, ...){
   return(priceIndex(x, pvar=qvar, qvar=pvar, pervar = pervar, indexMethod=indexMethod,
                     prodID = prodID, sample = sample, output = output,
-                    chainMethod = chainMethod, sigma = sigma, ... = ...))
+                    chainMethod = chainMethod, sigma = sigma, basePeriod = basePeriod,
+                    biasAdjust = biasAdjust, ... = ...))
 }

@@ -26,3 +26,20 @@ test_that("checkTypes converts factor columns to numeric", {
   expect_equal(inherits(testData$time, "numeric"), TRUE)
 
 })
+
+
+test_that("KennedyBeta calculates the correct adjustment", {
+
+  dat <- CES_sigma_2[CES_sigma_2$time <= 2,]
+  dat$prodID <- as.factor(dat$prodID)
+  dat$D <- ifelse(dat$time == 2, 1, 0)
+
+  reg <- lm(prices ~ D + prodID, data = dat)
+
+  expect_equal(kennedyBeta(reg), c(`(Intercept)` = 1.95953776,
+                                   D = -0.194869792,
+                                   prodID2 = -1.139739583,
+                                   prodID3 = -0.914739583,
+                                   prodID4 = -1.364739583))
+
+})

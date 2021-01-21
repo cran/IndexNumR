@@ -4,9 +4,21 @@
 \alias{quantityIndex}
 \title{Computes a bilateral quantity index}
 \usage{
-quantityIndex(x, pvar, qvar, pervar, indexMethod = "laspeyres", prodID,
-  sample = "matched", output = "pop", chainMethod = "pop",
-  sigma = 1.0001, ...)
+quantityIndex(
+  x,
+  pvar,
+  qvar,
+  pervar,
+  indexMethod = "laspeyres",
+  prodID,
+  sample = "matched",
+  output = "pop",
+  chainMethod = "pop",
+  sigma = 1.0001,
+  basePeriod = 1,
+  biasAdjust = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{A dataframe containing price, quantity, a time period identifier
@@ -22,15 +34,17 @@ There may be observations on multiple products for each time period.}
 
 \item{indexMethod}{A character string to select the index number method. Valid index
 number methods are dutot, carli, jevons, laspeyres, paasche, fisher, cswd,
-harmonic, tornqvist, satovartia, walsh and CES.}
+harmonic, tornqvist, satovartia, walsh, CES, geomLaspeyres, geomPaasche, tpd and
+Geary-Khamis.}
 
 \item{prodID}{A character string for the name of the product identifier}
 
 \item{sample}{A character string specifying whether a matched sample
 should be used.}
 
-\item{output}{A character string specifying whether a chained, fixed base or
-period-on-period price index numbers should be returned.}
+\item{output}{A character string specifying whether a chained (output="chained")
+, fixed base (output="fixedbase") or period-on-period (output="pop")
+price index numbers should be returned. Default is period-on-period.}
 
 \item{chainMethod}{A character string specifying the method of chain linking
 to use if the output option is set to "chained".
@@ -42,6 +56,12 @@ The default is period-on-period. Additional parameters can be passed to the
 mixScaleDissimilarity function using ...}
 
 \item{sigma}{The elasticity of substitution for the CES index method.}
+
+\item{basePeriod}{The period to be used as the base when 'fixedbase' output is
+chosen. Default is 1 (the first period).}
+
+\item{biasAdjust}{whether to adjust for bias in the coefficients in the bilateral
+TPD index. The default is TRUE.}
 
 \item{...}{this is used to pass additional parameters to the mixScaleDissimilarity
 function.}
