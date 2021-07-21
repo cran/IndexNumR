@@ -1,6 +1,7 @@
 ## ----setup, include=FALSE-----------------------------------------------------
 library(IndexNumR)
 
+
 ## ----head_CES-----------------------------------------------------------------
 head(CES_sigma_2)
 
@@ -65,7 +66,7 @@ priceIndex(CES_sigma_2,
 # Assume that the data in CES_sigma_2 are quarterly data with time period
 # 1 corresponding to the December quarter. 
 
-splices <- c("window", "half", "movement", "mean", "fbew", "fbmw")
+splices <- c("window", "half", "movement", "mean", "fbew", "fbmw", "wisp", "hasp", "mean_pub")
 
 # estimate a GEKS index using the different splicing methods. Under
 # the above assumptions, the window must be 5 to ensure the base period is

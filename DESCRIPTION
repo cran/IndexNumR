@@ -1,7 +1,7 @@
 Package: IndexNumR
 Type: Package
 Title: Index Number Calculation
-Version: 0.2.0
+Version: 0.3.0
 Author: Graham White
 Maintainer: Graham White <g.white@unswalumni.com>
 Description: Computes bilateral and multilateral index numbers. 
@@ -22,6 +22,6 @@ Imports: utils
 Suggests: testthat, knitr, rmarkdown, covr
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2021-01-21 09:03:22 UTC; Graham
+Packaged: 2021-07-21 11:46:59 UTC; Graham
 Repository: CRAN
-Date/Publication: 2021-01-21 10:20:12 UTC
+Date/Publication: 2021-07-21 14:20:02 UTC

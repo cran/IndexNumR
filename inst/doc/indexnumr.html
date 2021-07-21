@@ -12,13 +12,11 @@
 
 <meta name="author" content="Graham White" />
 
-<meta name="date" content="2021-01-21" />
+<meta name="date" content="2021-07-21" />
 
 <title>IndexNumR: A Package for Index Number Calculation</title>
 
 <script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
-<link href="data:text/css,%0Aa%2Eanchor%2Dsection%20%7Bmargin%2Dleft%3A%2010px%3B%20visibility%3A%20hidden%3B%20color%3A%20inherit%3B%7D%0Aa%2Eanchor%2Dsection%3A%3Abefore%20%7Bcontent%3A%20%27%23%27%3B%7D%0A%2EhasAnchor%3Ahover%20a%2Eanchor%2Dsection%20%7Bvisibility%3A%20visible%3B%7D%0A" rel="stylesheet" />
-<script src="data:application/javascript;base64,Ly8gQW5jaG9yIHNlY3Rpb25zIHYxLjAgd3JpdHRlbiBieSBBdHN1c2hpIFlhc3Vtb3RvIG9uIE9jdCAzcmQsIDIwMjAuCmRvY3VtZW50LmFkZEV2ZW50TGlzdGVuZXIoJ0RPTUNvbnRlbnRMb2FkZWQnLCBmdW5jdGlvbigpIHsKICAvLyBEbyBub3RoaW5nIGlmIEFuY2hvckpTIGlzIHVzZWQKICBpZiAodHlwZW9mIHdpbmRvdy5hbmNob3JzID09PSAnb2JqZWN0JyAmJiBhbmNob3JzLmhhc093blByb3BlcnR5KCdoYXNBbmNob3JKU0xpbmsnKSkgewogICAgcmV0dXJuOwogIH0KCiAgY29uc3QgaCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoJ2gxLCBoMiwgaDMsIGg0LCBoNSwgaDYnKTsKCiAgLy8gRG8gbm90aGluZyBpZiBzZWN0aW9ucyBhcmUgYWxyZWFkeSBhbmNob3JlZAogIGlmIChBcnJheS5mcm9tKGgpLnNvbWUoeCA9PiB4LmNsYXNzTGlzdC5jb250YWlucygnaGFzQW5jaG9yJykpKSB7CiAgICByZXR1cm4gbnVsbDsKICB9CgogIC8vIFVzZSBzZWN0aW9uIGlkIHdoZW4gcGFuZG9jIHJ1bnMgd2l0aCAtLXNlY3Rpb24tZGl2cwogIGNvbnN0IHNlY3Rpb25faWQgPSBmdW5jdGlvbih4KSB7CiAgICByZXR1cm4gKCh4LmNsYXNzTGlzdC5jb250YWlucygnc2VjdGlvbicpIHx8ICh4LnRhZ05hbWUgPT09ICdTRUNUSU9OJykpCiAgICAgICAgICAgID8geC5pZCA6ICcnKTsKICB9OwoKICAvLyBBZGQgYW5jaG9ycwogIGguZm9yRWFjaChmdW5jdGlvbih4KSB7CiAgICBjb25zdCBpZCA9IHguaWQgfHwgc2VjdGlvbl9pZCh4LnBhcmVudEVsZW1lbnQpOwogICAgaWYgKGlkID09PSAnJykgewogICAgICByZXR1cm4gbnVsbDsKICAgIH0KICAgIGxldCBhbmNob3IgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCdhJyk7CiAgICBhbmNob3IuaHJlZiA9ICcjJyArIGlkOwogICAgYW5jaG9yLmNsYXNzTGlzdCA9IFsnYW5jaG9yLXNlY3Rpb24nXTsKICAgIHguY2xhc3NMaXN0LmFkZCgnaGFzQW5jaG9yJyk7CiAgICB4LmFwcGVuZENoaWxkKGFuY2hvcik7CiAgfSk7Cn0pOwo="></script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -35,6 +33,7 @@
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
@@ -120,6 +119,29 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
 <link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
 
 
@@ -134,7 +156,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <h1 class="title toc-ignore">IndexNumR: A Package for Index Number Calculation</h1>
 <h4 class="author">Graham White</h4>
-<h4 class="date">2021-01-21</h4>
+<h4 class="date">2021-07-21</h4>
 
 
 <div id="TOC">
@@ -195,6 +217,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>multilaterals: provides multilateral indices for cross-section and panel data. Can also produce bilateral indices using Paasche, Laspeyres, Fisher and Tornqvist methods.</li>
 <li>productivity: calculates indices of productivity and profitability using common index number methods.</li>
 <li>IndexNumber: calculates Laspeyres, Paasche or Fisher indexes.</li>
+<li>PriceIndices: produces indices for a wide range of bilateral and multilateral methods, but limited to a monthly frequency. Provides splicing methods for extending multilateral indices as well as functions for preparation of the data.</li>
 </ul>
 </div>
 </div>
@@ -466,7 +489,7 @@ P(p^{t-1},p^{t},q^{t-1},q^{t}) = \frac{\sum_{n=1}^{N}h(q^{t-1}_{n}, q^{t}_{n})p^
 <p>This is a regression model approach where log prices are modelled as a function of time and product dummies. The regression equation is given by,</p>
 <p><span class="math display">\[\begin{equation*}
   \ln{p_{n}^{t}} = \alpha + \beta_{1} D^{t} + \sum_{n = 2}^{N}\beta_{n}D_{n} + \epsilon_{n}^{t},
-\end{equation*}\]</span> where <span class="math inline">\(D^{t}\)</span> is equal to 1 in period <span class="math inline">\(t\)</span> and 0 in period <span class="math inline">\(t-1\)</span>, and <span class="math inline">\(D_{n}\)</span> is equal to 1 if the product is product <span class="math inline">\(n\)</span> and 0 otherwise. The equation is estimated by weighted least squares (as suggested by <span class="citation">(Walter E. Diewert 2005b)</span>), where the weights are the product expenditure shares.</p>
+\end{equation*}\]</span> where <span class="math inline">\(D^{t}\)</span> is equal to 1 in period <span class="math inline">\(t\)</span> and 0 in period <span class="math inline">\(t-1\)</span>, and <span class="math inline">\(D_{n}\)</span> is equal to 1 if the product is product <span class="math inline">\(n\)</span> and 0 otherwise.</p>
 <p>The price index is then given by, <span class="math display">\[\begin{equation*}
   P(p^{t-1},p^{t},q^{t-1},q^{t}) = \exp({\hat{\beta_{1}}})
 \end{equation*}\]</span></p>
@@ -474,6 +497,7 @@ P(p^{t-1},p^{t},q^{t-1},q^{t}) = \frac{\sum_{n=1}^{N}h(q^{t-1}_{n}, q^{t}_{n})p^
 <p><span class="math display">\[\begin{equation*}
   P(p^{t-1},p^{t},q^{t-1},q^{t}) = \exp({\hat{\beta_{1}} - 0.5 \times Var(\hat{\beta_{1}})})
 \end{equation*}\]</span></p>
+<p>The time-product-dummy equation can be estimated using three methods in IndexNumR using the <code>weights</code> parameter: ordinary least squares; weighted least squares where the weights are the product expenditure shares; or weighted least squares where the weights are the average of the expenditure shares in the two periods. In the first case, the index produced is the same as the matched sample Jevons index, which does not use quantity information. The second option produces a matched sample harmonic share weights index, and the last option produces the matched sample Tornqvist index. See <span class="citation">(Walter E. Diewert 2005b)</span> for a discussion of these results.</p>
 </div>
 <div id="examples" class="section level3">
 <h3>Examples</h3>
@@ -671,7 +695,7 @@ where <span class="math inline">\(M+N\)</span> is the total number of items in t
 <p>The GEKS method is attributable to Gini <span class="citation">(Gini 1931)</span>, Eltito and Koves <span class="citation">(Eltetö and Köves 1964)</span>, and Szulc <span class="citation">(Szulc 1964)</span> in the cross-sectional context. The idea of adapting the method to the time series context is due to Balk <span class="citation">(Balk 1981)</span>, and developed further by Ivancic, Diewert and Fox <span class="citation">(Ivancic, Diewert, and Fox 2011)</span>.</p>
 <p>The user must choose the size of the window over which to apply the GEKS method, typically one or two years of data plus one period to account for seasonality. Denote this as <span class="math inline">\(w\)</span>.The basic method followed by the function <code>GEKSIndex</code> is as follows. Choose a period, denoted period <span class="math inline">\(k\)</span>, within the window as the base period. Calculate a bilateral index number between period <span class="math inline">\(k\)</span> and every other period in the window. Repeat this for all possible choices of <span class="math inline">\(k\)</span>. This gives a matrix of size <span class="math inline">\(w\times w\)</span> of bilateral indexes between all possible pairs of periods within the window. Then compute the GEKS indexes for the first <span class="math inline">\(w\)</span> periods as, <span class="math display">\[\begin{equation}
   \left[ \prod_{k=1}^{w}P^{k,1} \right]^{1/w}, \left[ \prod_{k=1}^{w}P^{k,2} \right]^{1/w}, \cdots, \left[ \prod_{k=1}^{w}P^{k,w} \right]^{1/w},
-\end{equation}\]</span> where the term <span class="math inline">\(P^{k,t}\)</span> is the bilateral index between period <span class="math inline">\(t\)</span> and base period <span class="math inline">\(k\)</span>. <em>IndexNumR</em> offers the Fisher, Tornqvist and time-product-dummy index number methods for the index <span class="math inline">\(P\)</span> via the <code>indexMethod</code> option. The Tornqvist index method is the default. The <span class="math inline">\(w\times w\)</span> matrix of bilateral indexes is as follows, <span class="math display">\[P =
+\end{equation}\]</span> where the term <span class="math inline">\(P^{k,t}\)</span> is the bilateral index between period <span class="math inline">\(t\)</span> and base period <span class="math inline">\(k\)</span>. <em>IndexNumR</em> offers the Fisher, Tornqvist, Walsh, Jevons and time-product-dummy index number methods for the index <span class="math inline">\(P\)</span> via the <code>indexMethod</code> option. The Tornqvist index method is the default. The <span class="math inline">\(w\times w\)</span> matrix of bilateral indexes is as follows, <span class="math display">\[P =
 \begin{pmatrix}
   P^{1,1} &amp; \cdots &amp; P^{1,w} \\
   \vdots &amp; \ddots &amp; \vdots \\
@@ -742,7 +766,7 @@ where <span class="math inline">\(M+N\)</span> is the total number of items in t
 <div id="extending-multilateral-indexes" class="section level3">
 <h3>Extending multilateral indexes</h3>
 <p>The multilateral indexes are normalised by dividing by the first term, to give an index for the first <span class="math inline">\(w\)</span> periods that starts at 1. If the index only covers <span class="math inline">\(w\)</span> periods then no further calculation is required. However, if there are <span class="math inline">\(T&gt;w\)</span> periods in the dataset then the index must be extended.</p>
-<p>Extending a multilateral index can be done in a multitude of ways. Statistical agencies generally do not revise price indices like the consumer price index, so the methods offered by <em>IndexNumR</em> to extend multilateral indexes are methods that do not lead to revisions. More specifically, these are called <em>splicing methods</em> and the options available are the <em>movement</em>, <em>window</em>, <em>half</em>, <em>mean</em>, <em>fbew (Fixed Base Expanding Window)</em> and <em>fbmw (Fixed Base Moving Window)</em>. The idea behind most of these methods is that we start by moving the window forward by one period and calculate the index for the new window. There will be <span class="math inline">\(w-1\)</span> overlapping periods between the initial index and the index computed on the window that has been rolled forward one period. Any one of these overlapping periods can be used to extend the multilateral index.</p>
+<p>Extending a multilateral index can be done in a multitude of ways. Statistical agencies generally do not revise price indices like the consumer price index, so the methods offered by <em>IndexNumR</em> to extend multilateral indexes are methods that do not lead to revisions. More specifically, these are called <em>splicing methods</em> and the options available are the <em>movement</em>, <em>window</em>, <em>half</em>, <em>mean</em>, <em>fbew (Fixed Base Expanding Window)</em>, <em>fbmw (Fixed Base Moving Window)</em>, <em>wisp (window splice on published data)</em>, <em>hasp (half-splice on published data)</em> and <em>mean splice on published data</em>. The idea behind most of these methods is that we start by moving the window forward by one period and calculate the index for the new window. There will be <span class="math inline">\(w-1\)</span> overlapping periods between the initial index and the index computed on the window that has been rolled forward one period. Any one of these overlapping periods can be used to extend the multilateral index. The variants of window, half and mean splice that are on published data use the same method as the classical counterparts, but splice onto the published series instead of the previously calculated window.</p>
 <p>Let <span class="math inline">\(P_{OLD}\)</span> be the index computed over periods <span class="math inline">\(1\)</span> to <span class="math inline">\(w\)</span> and let <span class="math inline">\(P_{NEW}\)</span> be the index computed over the window rolled forward one period, from periods <span class="math inline">\(2\)</span> to <span class="math inline">\(w+1\)</span>. Let the final index simply be <span class="math inline">\(P\)</span>. For the first <span class="math inline">\(w\)</span> periods <span class="math inline">\(P = P_{OLD}\)</span>, then <span class="math inline">\(P^{w+1}\)</span> is computed using the splicing methods as follows.</p>
 <ul>
 <li><p>Movement splice <span class="citation">(Ivancic, Diewert, and Fox 2011)</span> <span class="math display">\[\begin{equation}
@@ -759,7 +783,7 @@ P^{w+1} = P^{w} \times \left( \prod_{t=1}^{w-1} \frac{P_{NEW}^{w+1}/P_{NEW}^{t+1
 \end{equation}\]</span> The mean splice uses the geometric mean of the movements between the last period and every other period in the window to extend the original index.</p></li>
 <li><p>FBMW <span class="citation">(Lamboray 2017)</span> <span class="math display">\[\begin{equation}
 P^{w+1} = P^{base} \times \frac{P_{NEW}^{w+1}}{P_{NEW}^{base}}
-\end{equation}\]</span> This method uses a fixed base period that is updated periodically. For example, if the data are monthly then the base period could be each December month, which would be achieved by ensuring that December is the first period in the data and specifying a window length of 13. The splice is calculated by using the movement between the final data point and the base period in the new window to extend the index. If the new data point being calculated is the first period after the base period, then this method is the same as the movement splice. Using the same example, if each December is the base period, then each January this method will produce the same result as the movement splice.</p></li>
+\end{equation}\]</span> This method uses a fixed base period that is updated periodically. For example, if the data are monthly then the base period could be each December month, which would be achieved by ensuring that December is the first period in the data and specifying a window length of 13. The splice is calculated by using the movement between the final data point and the base period in the new window to extend the index. If the new data point being calculated is the first period after the base period, then this method produces the same price growth the same as the movement splice. Using the same example, if each December is the base period, then this method will produce the same price growth for January on December as the movement splice.</p></li>
 <li><p>FBEW <span class="citation">(Chessa 2016)</span></p>
 <p>This method uses the same calculation as FBMW, but uses a different set of data for the calculation. It expands the size of the window used to compute the new data point each period to include the latest period of data. If the data are monthly and the base period is each December, then the window used to compute the new data point in January includes only the December and January months. In February it includes the December, January and February months, and so on until the next December where it includes the full 13 months (assuming a window length of 13). This method produces the same result as the FBMW method when the new period being calculated is the base period. Using the same example, if each December is the base period, then each December this will produce the same result as the FBMW method.</p></li>
 </ul>
@@ -767,7 +791,7 @@ P^{w+1} = P^{base} \times \frac{P_{NEW}^{w+1}}{P_{NEW}^{base}}
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Assume that the data in CES_sigma_2 are quarterly data with time period</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 corresponding to the December quarter. </span></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>splices <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;window&quot;</span>, <span class="st">&quot;half&quot;</span>, <span class="st">&quot;movement&quot;</span>, <span class="st">&quot;mean&quot;</span>, <span class="st">&quot;fbew&quot;</span>, <span class="st">&quot;fbmw&quot;</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>splices <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;window&quot;</span>, <span class="st">&quot;half&quot;</span>, <span class="st">&quot;movement&quot;</span>, <span class="st">&quot;mean&quot;</span>, <span class="st">&quot;fbew&quot;</span>, <span class="st">&quot;fbmw&quot;</span>, <span class="st">&quot;wisp&quot;</span>, <span class="st">&quot;hasp&quot;</span>, <span class="st">&quot;mean_pub&quot;</span>)</span>
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co"># estimate a GEKS index using the different splicing methods. Under</span></span>
 <span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co"># the above assumptions, the window must be 5 to ensure the base period is</span></span>
@@ -785,19 +809,32 @@ P^{w+1} = P^{base} \times \frac{P_{NEW}^{w+1}}{P_{NEW}^{base}}
 <span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(result) <span class="ot">&lt;-</span> splices</span>
 <span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>result</span></code></pre></div>
-<pre><code>##       window      half  movement      mean      fbew      fbmw
-## 1  1.0000000 1.0000000 1.0000000 1.0000000 1.0000000 1.0000000
-## 2  0.8927770 0.8927770 0.8927770 0.8927770 0.8927770 0.8927770
-## 3  1.0781723 1.0781723 1.0781723 1.0781723 1.0781723 1.0781723
-## 4  1.1132724 1.1132724 1.1132724 1.1132724 1.1132724 1.1132724
-## 5  0.9292537 0.9292537 0.9292537 0.9292537 0.9292537 0.9292537
-## 6  1.1784816 1.1789683 1.1772392 1.1783996 1.1746060 1.1772392
-## 7  1.1221118 1.1225393 1.1205204 1.1214679 1.1179392 1.1191128
-## 8  0.9383833 0.9380921 0.9368880 0.9376351 0.9348518 0.9352286
-## 9  1.0951022 1.0953198 1.0941491 1.0947038 1.0914207 1.0914207
-## 10 0.9515914 0.9517785 0.9507333 0.9512963 0.9486380 0.9483625
-## 11 1.1280620 1.1285738 1.1268628 1.1277415 1.1241728 1.1242435
-## 12 1.1336566 1.1341126 1.1323917 1.1332152 1.1297415 1.1297611</code></pre>
+<pre><code>##       window      half  movement      mean      fbew      fbmw      wisp
+## 1  1.0000000 1.0000000 1.0000000 1.0000000 1.0000000 1.0000000 1.0000000
+## 2  0.8927770 0.8927770 0.8927770 0.8927770 0.8927770 0.8927770 0.8927770
+## 3  1.0781723 1.0781723 1.0781723 1.0781723 1.0781723 1.0781723 1.0781723
+## 4  1.1132724 1.1132724 1.1132724 1.1132724 1.1132724 1.1132724 1.1132724
+## 5  0.9292537 0.9292537 0.9292537 0.9292537 0.9292537 0.9292537 0.9292537
+## 6  1.1784816 1.1789102 1.1772392 1.1783996 1.1746060 1.1772392 1.1784816
+## 7  1.1221118 1.1207012 1.1205204 1.1214679 1.1179392 1.1191128 1.1225753
+## 8  0.9383833 0.9371778 0.9368880 0.9376351 0.9348518 0.9352286 0.9386945
+## 9  1.0951022 1.0942446 1.0941491 1.0947038 1.0914207 1.0914207 1.0914207
+## 10 0.9515914 0.9510825 0.9507333 0.9512963 0.9486380 0.9483625 0.9517028
+## 11 1.1280620 1.1274679 1.1268628 1.1277415 1.1241728 1.1242435 1.1288942
+## 12 1.1336566 1.1327009 1.1323917 1.1332152 1.1297415 1.1297611 1.1354276
+##         hasp  mean_pub
+## 1  1.0000000 1.0000000
+## 2  0.8927770 0.8927770
+## 3  1.0781723 1.0781723
+## 4  1.1132724 1.1132724
+## 5  0.9292537 0.9292537
+## 6  1.1789102 1.1783996
+## 7  1.1191128 1.1214484
+## 8  0.9383566 0.9373834
+## 9  1.0925320 1.0940276
+## 10 0.9524902 0.9512759
+## 11 1.1253883 1.1276104
+## 12 1.1341850 1.1330457</code></pre>
 <p>On the assumptions in the above example, periods 1, 5 and 9 are Decembers. Periods 1-5 are computed using full information and periods 6-12 are computed using the splicing methods. Notice that fbew = fbmw in period 9 (December) and fbmw = movement in period 6 (January).</p>
 </div>
 </div>
@@ -927,7 +964,7 @@ Gini, C. 1931. <span>“On the Circular Test of Index Numbers.”</span> <em>Int
 Hill, Robert. 2001. <span>“Measuring Inflation and Growth Using Spanning Trees.”</span> <em>International Economic REview</em> 42 (1): 167–85. <a href="http://dx.doi.org/10.1111/1468-2354.00105">http://dx.doi.org/10.1111/1468-2354.00105</a>.
 </div>
 <div id="ref-idf:2010" class="csl-entry">
-Ivancic, Loraine, Walter E. Diewert, and Kevin J. Fox. 2010. <span>“Using a Constant Elasticity of Substitution Index to Estimate a Cost of Living Index: From Theory to Practice.”</span> School of Economics Discussion Paper 2010/15. University of New South Wales.
+Ivancic, Loraine, Walter E. Diewert, and Kevin J. Fox. 2010. <span>“Using a Constant Elasticity of Substitution Index to Estimate a Cost of Living Index: From Theory to Practice.”</span> {School of Economics Discussion Paper} 2010/15. University of New South Wales.
 </div>
 <div id="ref-idf:2011" class="csl-entry">
 ———. 2011. <span>“Scanner Data, Time Aggregation and the Construction of Price Indexes.”</span> <em>Journal of Econometrics</em> 161: 24–35. <a href="https://doi.org/10.1016/j.jeconom.2010.09.003">https://doi.org/10.1016/j.jeconom.2010.09.003</a>.
