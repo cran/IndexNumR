@@ -12,7 +12,7 @@
 
 <meta name="author" content="Graham White" />
 
-<meta name="date" content="2021-07-21" />
+<meta name="date" content="2021-09-26" />
 
 <title>IndexNumR: A Package for Index Number Calculation</title>
 
@@ -156,7 +156,7 @@ div.csl-indent {
 
 <h1 class="title toc-ignore">IndexNumR: A Package for Index Number Calculation</h1>
 <h4 class="author">Graham White</h4>
-<h4 class="date">2021-07-21</h4>
+<h4 class="date">2021-09-26</h4>
 
 
 <div id="TOC">
@@ -177,10 +177,6 @@ div.csl-indent {
 <li><a href="#matched-sample-indexes">Matched-sample indexes</a></li>
 <li><a href="#bilateral-index-numbers">Bilateral index numbers</a>
 <ul>
-<li><a href="#elementary-indexes">Elementary indexes</a></li>
-<li><a href="#fixed-basket-indexes">Fixed-basket indexes</a></li>
-<li><a href="#superlative-and-pseudo-superlative-indexes">Superlative and pseudo-superlative indexes</a></li>
-<li><a href="#constant-elasticity-of-substitution-ces-framework-indexes">Constant elasticity of substitution (CES) framework indexes</a></li>
 <li><a href="#time-dummy-methods">Time dummy methods</a></li>
 <li><a href="#examples">Examples</a></li>
 </ul></li>
@@ -417,9 +413,7 @@ div.csl-indent {
 </div>
 <div id="bilateral-index-numbers" class="section level2">
 <h2>Bilateral index numbers</h2>
-<p>Bilateral index numbers are those that use data for two periods to compute each value of the index. All of the bilateral index numbers can be computed as period-on-period, chained or fixed base. Period-on-period simply measures the change from one period to the next. Chained indices give the cumulative change, and it is calculated as the cumulative product of the period-on-period index. The fixed base index compares each period to the base period. This is also called a direct index, because unlike a chained index, it does not go through other periods to measure the change since the base period. Formulae used to compute the bilateral index numbers from period t-1 to period t are as below.</p>
-<div id="elementary-indexes" class="section level3">
-<h3>Elementary indexes</h3>
+<p>Bilateral index numbers are those that examine the movement between two periods. All of the bilateral index numbers can be computed as period-on-period, chained or fixed base. Period-on-period simply measures the change from one period to the next. Chained indices give the cumulative change, and it is calculated as the cumulative product of the period-on-period index. The fixed base index compares each period to the base period. This is also called a direct index, because unlike a chained index, it does not go through other periods to measure the change since the base period. Formulae used to compute the bilateral index numbers from period t-1 to period t are as below.</p>
 <ul>
 <li><p>Carli index <span class="citation">(Carli 1804)</span>, <span class="math display">\[\begin{equation*}
 P(p^{t-1},p^{t}) = \frac{1}{N}\sum_{n=1}^{N}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\right)
@@ -430,28 +424,33 @@ P(p^{t-1},p^{t}) = \frac{1}{N}\sum_{n=1}^{N}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\
 <li><p>Dutot index <span class="citation">(Dutot 1738)</span>, <span class="math display">\[\begin{equation*}
   P(p^{t-1},p^{t}) = \frac{\sum_{n=1}^{N}p^{t}_{n}}{\sum_{n=1}^{N}p^{t-1}_{n}}
 \end{equation*}\]</span></p></li>
-</ul>
-</div>
-<div id="fixed-basket-indexes" class="section level3">
-<h3>Fixed-basket indexes</h3>
-<ul>
 <li><p>Laspeyres index <span class="citation">(Laspeyres 1871)</span>, <span class="math display">\[\begin{equation*}
   P(p^{t-1},p^{t},q^{t-1}) = \frac{\sum_{n=1}^{N}p^{t}_{n}q^{t-1}_{n}}{\sum_{n=1}^{N}p^{t-1}_{n}q^{t-1}_{n}}
 \end{equation*}\]</span></p></li>
-<li><p>Paasche index <span class="citation">(Paasche 1874)</span>, <span class="math display">\[\begin{equation*}
+<li><p>Paasche index <span class="citation">(Paasche 1874)</span> <span class="math display">\[\begin{equation*}
   P(p^{t-1},p^{t},q^{t}) = \frac{\sum_{n=1}^{N}p^{t}_{n}q^{t}_{n}}{\sum_{n=1}^{N}p^{t-1}_{n}q^{t}_{n}}
 \end{equation*}\]</span></p></li>
-<li><p>Geometric Laspeyres index <span class="math display">\[\begin{equation*}
+<li><p>Geometric Laspeyres index <span class="citation">(Konüs and Byushgens 1926)</span> <span class="math display">\[\begin{equation*}
   P(p^{t-1},p^{t},q^{t-1}) = \prod_{n=1}^{N}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\right)^{s^{t-1}_{n}},
 \end{equation*}\]</span> where <span class="math inline">\(s^{t}_{n} = \frac{p^{t}_{n}q^{t}_{n}}{\sum_{n=1}^{N}p^{t}_{n}q^{t}_{n}}\)</span> is the share of period <span class="math inline">\(t\)</span> expenditure on good <span class="math inline">\(n\)</span>.</p></li>
-<li><p>Geometric Paasche index <span class="math display">\[\begin{equation*}
+<li><p>Geometric Paasche index <span class="citation">(Konüs and Byushgens 1926)</span> <span class="math display">\[\begin{equation*}
   P(p^{t-1},p^{t},q^{t}) = \prod_{n=1}^{N}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\right)^{s^{t}_{n}},
 \end{equation*}\]</span> where <span class="math inline">\(s^{t}_{n}\)</span> is defined as above for the geometric laspeyres index.</p></li>
-</ul>
-</div>
-<div id="superlative-and-pseudo-superlative-indexes" class="section level3">
-<h3>Superlative and pseudo-superlative indexes</h3>
-<ul>
+<li><p>Lowe index <span class="citation">(Lowe 1823)</span> <span class="math display">\[\begin{equation*}
+  P(p^{t-1},p^{t},q^{b}) = \frac{\sum_{n=1}^{N}p^{t}_{n}q^{b}_{n}}{\sum_{n=1}^{N}p^{t-1}_{n}q^{b}_{n}},
+\end{equation*}\]</span> where <span class="math inline">\(b\)</span> can be any period, or range of periods, in the dataset.</p></li>
+<li><p>Young index <span class="citation">(Young 1812)</span> <span class="math display">\[\begin{equation*}
+  P(p^{t-1},p^{t},p^{b},q^{b}) = \sum_{n=1}^{N}s^{b}_{n}\frac{p^{t}_{n}}{p^{t-1}_{n}},
+\end{equation*}\]</span> where <span class="math inline">\(b\)</span> can be any period, or range of periods, in the dataset.</p></li>
+<li><p>Drobish index <span class="citation">(Drobish 1871)</span> <span class="math display">\[\begin{equation*}
+P(p^{t-1},p^{t},q^{t-1},q^{t}) = (P_{L}+P_{P})/2,
+\end{equation*}\]</span> where <span class="math inline">\(P_{L}\)</span> is the Laspeyres price index and <span class="math inline">\(P_{P}\)</span> is the Paasche price index.</p></li>
+<li><p>Marshall-Edgeworth index <span class="citation">(Marshall 1887)</span>, <span class="citation">(Edgeworth 1925)</span> <span class="math display">\[\begin{equation*}
+P(p^{t-1},p^{t},q^{t-1},q^{t}) = \frac{\sum_{n=1}^{N}p_{n}^{t}(q_{n}^{t-1}+q_{n}^{t})}{\sum_{n=1}^{N}p_{n}^{t-1}(q_{n}^{t-1}+q_{n}^{t})}
+\end{equation*}\]</span></p></li>
+<li><p>Palgrave index <span class="citation">(Palgrave 1886)</span> <span class="math display">\[\begin{equation*}
+P(p^{t-1},p^{t},q^{t-1},q^{t}) = \sum_{n=1}^{N}s^{t}_{n}\frac{p^{t}_{n}}{p^{t-1}_{n}},
+\end{equation*}\]</span> where <span class="math inline">\(s^{t}_{n}\)</span> is defined as above for the geometric laspeyres index.</p></li>
 <li><p>Fisher index <span class="citation">(Fisher 1921)</span>, <span class="math display">\[\begin{equation*}
   P(p^{t-1},p^{t},q^{t-1},q^{t}) = [P_{P}P_{L}]^{\frac{1}{2}},
 \end{equation*}\]</span> where <span class="math inline">\(P_{P}\)</span> is the Paasche index and <span class="math inline">\(P_{L}\)</span> is the Laspeyres index. The Fisher index has other representations, but this is the one used by <em>IndexNumR</em> in its computations.</p></li>
@@ -471,16 +470,13 @@ P(p^{t-1},p^{t}) = \frac{1}{N}\sum_{n=1}^{N}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\
 <li><p>Geary-Khamis <span class="citation">(Khamis 1972)</span> <span class="math display">\[\begin{equation*}
 P(p^{t-1},p^{t},q^{t-1},q^{t}) = \frac{\sum_{n=1}^{N}h(q^{t-1}_{n}, q^{t}_{n})p^{t}_{n}}{\sum_{n=1}^{N}h(q^{t-1}_{n}, q^{t}_{n})p^{t-1}_{n}}
 \end{equation*}\]</span> where h() is the harmonic mean.</p></li>
-</ul>
-</div>
-<div id="constant-elasticity-of-substitution-ces-framework-indexes" class="section level3">
-<h3>Constant elasticity of substitution (CES) framework indexes</h3>
-<ul>
-<li>CES index, also known as the Lloyd-Moulton index <span class="citation">(Lloyd 1975; Moulton 1996)</span>, <span class="math display">\[\begin{equation*}
+<li><p>Stuvel index <span class="citation">(Stuvel 1957)</span> <span class="math display">\[\begin{equation*}
+P(p^{t-1},p^{t},q^{t-1},q^{t}) = A + \sqrt{A^2 + V^{t}/V^{t-1}},
+\end{equation*}\]</span> where <span class="math inline">\(V^{t}\)</span> is value of total sales in period <span class="math inline">\(t\)</span>, <span class="math inline">\(A = (P_{L}-Q_{L})/2\)</span>, <span class="math inline">\(P_{L}\)</span> is the laspeyres price index and <span class="math inline">\(Q_{L}\)</span> is the laspeyres quantity index.</p></li>
+<li><p>CES index, also known as the Lloyd-Moulton index <span class="citation">(Lloyd 1975; Moulton 1996)</span>, <span class="math display">\[\begin{equation*}
   P(p^{t-1},p^{t},q^{t-1}) = \left[\sum_{n=1}^{N}s_{n}^{t-1}\left(\frac{p^{t}_{n}}{p^{t-1}_{n}}\right)^{(1-\sigma)}\right]^{\left(\frac{1}{1-\sigma}\right)},
-\end{equation*}\]</span> where <span class="math inline">\(\sigma\)</span> is the elasticity of substitution.</li>
+\end{equation*}\]</span> where <span class="math inline">\(\sigma\)</span> is the elasticity of substitution.</p></li>
 </ul>
-</div>
 <div id="time-dummy-methods" class="section level3">
 <h3>Time dummy methods</h3>
 <ul>
@@ -599,7 +595,7 @@ P(p^{t-1},p^{t},q^{t-1},q^{t}) = \frac{\sum_{n=1}^{N}h(q^{t-1}_{n}, q^{t}_{n})p^
 </div>
 <div id="chain-linked-indices-and-the-linking-period-problem" class="section level2">
 <h2>Chain-linked indices and the linking period problem</h2>
-<p>One problem with chain-linked indices is that depending on the index number method chosen, the index will likely suffer from chain drift. Take an example where prices increase in one period and then return to their original level in the next period. An index suffering from chain-drift will increase when prices increase, but won’t return to its original level when prices do. In the above examples, it was noted that there is substantial positive bias in the Laspeyres index and substantial negative bias in the Paasche index. Part of this is due to chain drift.</p>
+<p>One problem with chain-linked indices is the potential for chain drift. Take an example where prices increase in one period and then return to their original level in the next period. An index suffering from chain-drift will increase when prices increase, but won’t return to its original level when prices do. In the above examples, it was noted that there is substantial positive bias in the Laspeyres index and substantial negative bias in the Paasche index. Part of this is due to chain drift.</p>
 <p>One way of reducing the amount of chain drift is to choose linking periods that are ‘similar’ in some sense (alternatively, use a multilateral method). This method of linking has been mentioned by Diewert and Fox <span class="citation">(W. Erwin Diewert and Fox 2017)</span>, and Hill <span class="citation">(Hill 2001)</span> takes the concept further to choose the link period based on a minimum cost spanning tree.</p>
 <p>To choose the linking period we need a measure of the similarity between two periods. For each period we have information on prices and quantities. The Hill (2001) method compares the two periods based on the Paasche-Laspeyres spread,</p>
 <p><span class="math display">\[\begin{equation}
@@ -702,6 +698,14 @@ where <span class="math inline">\(M+N\)</span> is the total number of items in t
   P^{w,1} &amp; \cdots &amp; P^{w,w}
 \end{pmatrix}
 \]</span> So that the first term of the GEKS index is the geometric mean of the elements in the first column of the above matrix, the second term is the geometric mean of the second column, and so on. Note that <em>IndexNumR</em> makes use of two facts about the matrix above to speed up computation: it is (inversely) symmetric so that <span class="math inline">\(P^{j,k} = 1/P^{k,j}\)</span>; and the diagonal elements are 1.</p>
+<div id="intersection-geks-int-geks" class="section level4">
+<h4>Intersection GEKS (int-GEKS)</h4>
+<p>The intersection GEKS (int-GEKS) was developed by Claude Lamboray and Frances Krsinich <span class="citation">(C. Lamboray and Krsinich 2015)</span> to deal with the asymmetry with which products enter the index, when there are appearing or disappearing products. The issue arises because when calculating the GEKS index comparing two adjacent periods, products that are not matched for the two periods may still contribute to the index, either in period <span class="math inline">\(t-1\)</span> or period <span class="math inline">\(t\)</span>, but not both.</p>
+<p>To see this, note that the GEKS index between periods <span class="math inline">\(t-1\)</span> and <span class="math inline">\(t\)</span>, using the window going from period 1 to <span class="math inline">\(w\)</span>, can be written as: <span class="math display">\[\begin{equation}
+  P^{t-1,t}_{[1:w]} = \prod_{k=1}^{w}(P_{t-1,k}\times P_{k,t})^{1/w},
+\end{equation}\]</span></p>
+<p>where <span class="math inline">\(P_{t-1,k}\)</span> is the bilateral price index between periods <span class="math inline">\(t-1\)</span> and <span class="math inline">\(k\)</span>, and <span class="math inline">\(P_{k,t}\)</span> is similarly defined. The usual GEKS procedure performed by <em>IndexNumR</em> when using the function <code>GEKSIndex</code> and specifying <code>sample = matched</code>, performs matching between period <span class="math inline">\(t\)</span> and period <span class="math inline">\(k\)</span> only. The int-GEKS method performs matching between periods <span class="math inline">\(t-1\)</span>, <span class="math inline">\(t\)</span> and <span class="math inline">\(k\)</span>. Since more matching is performed, fewer data points are used in estimating the index, particularly if product turnover is high. It is also computationally somewhat slower, as more matching must be performed.</p>
+</div>
 </div>
 <div id="the-geary-khamis-method" class="section level3">
 <h3>The Geary-Khamis method</h3>
@@ -781,7 +785,7 @@ P^{w+1} = P^{w} \times \frac{P_{NEW}^{w+1}/P_{NEW}^{\frac{w-1}{2}+1}}{P_{OLD}^{w
 <li><p>Mean splice <span class="citation">(Ivancic, Diewert, and Fox 2011)</span> <span class="math display">\[\begin{equation}
 P^{w+1} = P^{w} \times \left( \prod_{t=1}^{w-1} \frac{P_{NEW}^{w+1}/P_{NEW}^{t+1}}{P_{OLD}^{w}/P_{OLD}^{t+1}} \right)^{\frac{1}{(w-1)}} 
 \end{equation}\]</span> The mean splice uses the geometric mean of the movements between the last period and every other period in the window to extend the original index.</p></li>
-<li><p>FBMW <span class="citation">(Lamboray 2017)</span> <span class="math display">\[\begin{equation}
+<li><p>FBMW <span class="citation">(Claude Lamboray 2017)</span> <span class="math display">\[\begin{equation}
 P^{w+1} = P^{base} \times \frac{P_{NEW}^{w+1}}{P_{NEW}^{base}}
 \end{equation}\]</span> This method uses a fixed base period that is updated periodically. For example, if the data are monthly then the base period could be each December month, which would be achieved by ensuring that December is the first period in the data and specifying a window length of 13. The splice is calculated by using the movement between the final data point and the base period in the new window to extend the index. If the new data point being calculated is the first period after the base period, then this method produces the same price growth the same as the movement splice. Using the same example, if each December is the base period, then this method will produce the same price growth for January on December as the movement splice.</p></li>
 <li><p>FBEW <span class="citation">(Chessa 2016)</span></p>
@@ -942,8 +946,14 @@ Diewert, Walter E. 1999. <span>“Axiomatic and Economic Approaches to Internati
 <div id="ref-diewert:2005b" class="csl-entry">
 ———. 2005b. <span>“Weighted Country Product Dummy Variable Regressions and Index Number Formulae.”</span> <em>Review of Income and Wealth</em> 51: 561–70.
 </div>
+<div id="ref-drobish:1871" class="csl-entry">
+Drobish, M. W. 1871. <span>“<span>Ü</span>ber Die Berechnung Der Ver<span>ä</span>nderungen Der Waarenpreise Und Des Geldwerths.”</span> <em>Jahrb<span>ü</span>cher f<span>ü</span>r National<span>ö</span>konomie Und Statistik</em> 16: 143–56.
+</div>
 <div id="ref-dutot:1738" class="csl-entry">
 Dutot, N. 1738. <em>R<span>é</span>flections Politiques Sur Les Finances Et Le Commerce</em>. La Haye: Les fr<span>è</span>res Vaillant et N. Prevost.
+</div>
+<div id="ref-edgeworth:1925" class="csl-entry">
+Edgeworth, F. Y. 1925. <em>Papers Relating to Political Economy</em>. New York: Burt Franklin.
 </div>
 <div id="ref-ek:1964" class="csl-entry">
 Eltetö, Ö, and P Köves. 1964. <span>“On a Problem of Index Number Computation Relating to International Comparisons.”</span> <em>Statisztikai Szemle</em> 42: 507–18.
@@ -981,8 +991,14 @@ Khamis, S. H. 1970. <span>“Properties and Conditions for the Existence of a Ne
 <div id="ref-khamis:1972" class="csl-entry">
 ———. 1972. <span>“A New System of Index Numbers for National and International Purposes.”</span> <em>Journal of the Royal Statistical Society Series A</em> 135: 96–121.
 </div>
+<div id="ref-konusByush:1926" class="csl-entry">
+Konüs, A. A, and S. S. Byushgens. 1926. <span>“K Probleme Pokupatelnoi Cili Deneg.”</span> <em>Voprosi Konyunkturi</em> 2: 151–72.
+</div>
 <div id="ref-krsinich:2016" class="csl-entry">
 Krsinich, F. 2016. <span>“The <span>FEWS</span> Index: Fixed Effects with a Window Splice.”</span> <em>Journal of Official Statistics</em> 32: 375–404.
+</div>
+<div id="ref-lambkrsinich:2015" class="csl-entry">
+Lamboray, C., and F. Krsinich. 2015. <span>“A Modification of the GEKS Index When Product Turnover Is High.”</span> Paper presented at the fourteenth Ottawa Group meeting. <span class="smallcaps">url:</span> <a href="http://www.stat.go.jp/english/info/meetings/og2015/pdf/t1s1p2_pap.pdf">http://www.stat.go.jp/english/info/meetings/og2015/pdf/t1s1p2_pap.pdf</a>.
 </div>
 <div id="ref-lamboray:2017" class="csl-entry">
 Lamboray, Claude. 2017. <span>“The Geary Khamis Index and the Lehr Index: How Much Do They Differ?”</span> In <em>15th Meeting of the Ottawa Group 2017</em>.
@@ -993,6 +1009,12 @@ Laspeyres, E. 1871. <span>“Die Berechnung Einer Mittleren Waarenpreissteigerun
 <div id="ref-lloyd:1975" class="csl-entry">
 Lloyd, P J. 1975. <span>“Substitution Effects and Biases in Nontrue Price Indices.”</span> <em>The American Economic Review</em> 65 (3): 301–13.
 </div>
+<div id="ref-lowe:1823" class="csl-entry">
+Lowe, J. 1823. <em>The Present State of England in Regard to Agriculture, Trade and Finance, Second Edition</em>. Longman, Hurst, Rees, Orme; Brown.
+</div>
+<div id="ref-marshall:1887" class="csl-entry">
+Marshall, A. 1887. <span>“Remedies for Fluctuations of General Prices.”</span> <em>Contemporary Review</em> 51: 355–75.
+</div>
 <div id="ref-montgomery:1929" class="csl-entry">
 Montgomery, J. K. 1929. <span>“Is There a Theoretically Correct Price Index of a Group of Commodities?”</span> Poliglotta (privately printed paper, 16 pages). Rome: Roma L’Universale Tipogr.
 </div>
@@ -1000,13 +1022,19 @@ Montgomery, J. K. 1929. <span>“Is There a Theoretically Correct Price Index of
 Moulton, B R. 1996. <span>“Constant Elasticity Cost-of-Living Index in Share-Relative Form.”</span> Mimeo. Bureau of Labour Statistics.
 </div>
 <div id="ref-paasche:1874" class="csl-entry">
-Paasche, H. 1874. <span>“<span>Ü</span>ber Die Preisentwicklung Der Letzten Jahre Nach Den Hamburger Borsennotirungen.”</span> <em>Jahrb<span>&quot;̆</span>cher f<span>ü</span>r National<span>ö</span>konomie Und Statistik</em> 12: 168–78.
+Paasche, H. 1874. <span>“<span>Ü</span>ber Die Preisentwicklung Der Letzten Jahre Nach Den Hamburger Borsennotirungen.”</span> <em>Jahrb<span>ü</span>cher f<span>ü</span>r National<span>ö</span>konomie Und Statistik</em> 12: 168–78.
+</div>
+<div id="ref-palgrave:1886" class="csl-entry">
+Palgrave, R. H. I. 1886. <span>“Currency and Standard of Value in England, France and India and the Rates of Exchange Between These Countries.”</span> in Memorandum submitted to the Royal Commission on Depression of Trade and Industry, Third Report, Appendix B, 312-390.
 </div>
 <div id="ref-rao:1995" class="csl-entry">
 Rao, D. S. Prasada. 1995. <span>“On the Equivalence of the Generalized Country-Product-Dummy (CPD) Method and the Rao-System for Multilateral Comparisons.”</span> Working Paper No. 5. Centre for International Comparisons, University of Pennsylvania, Philadelphia.
 </div>
 <div id="ref-sato:1976" class="csl-entry">
 Sato, K. 1976. <span>“The Ideal Log-Change Index Number.”</span> <em>The Review of Economics and Statistics</em> 53: 223–28.
+</div>
+<div id="ref-stuvel:1957" class="csl-entry">
+Stuvel, G. 1957. <span>“A New Index Number Formula.”</span> <em>Econometrica</em> 25: 123–31.
 </div>
 <div id="ref-summers:1973" class="csl-entry">
 Summers, R. 1973. <span>“International Comparisons with Incomplete Data.”</span> <em>Review of Income and Wealth</em> 29: 1–16.
@@ -1022,6 +1050,9 @@ Törnqvist, L, and E Törnqvist. 1937. <span>“Vilket <span class="nocase">ä</
 </div>
 <div id="ref-vartia:1976" class="csl-entry">
 Vartia, Y O. 1976. <span>“Ideal Log-Change Index Numbers.”</span> <em>The Scandinavian Journal of Statistics</em> 3: 121–26.
+</div>
+<div id="ref-young:1812" class="csl-entry">
+Young, A. 1812. <em>An Inquiry into the Progressive Value of Money in England as Marked by the Price of Agricultural Products</em>. London.
 </div>
 </div>
 </div>
