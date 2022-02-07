@@ -12,7 +12,7 @@
 
 <meta name="author" content="Graham White" />
 
-<meta name="date" content="2021-09-26" />
+<meta name="date" content="2022-02-07" />
 
 <title>IndexNumR: A Package for Index Number Calculation</title>
 
@@ -156,7 +156,7 @@ div.csl-indent {
 
 <h1 class="title toc-ignore">IndexNumR: A Package for Index Number Calculation</h1>
 <h4 class="author">Graham White</h4>
-<h4 class="date">2021-09-26</h4>
+<h4 class="date">2022-02-07</h4>
 
 
 <div id="TOC">
@@ -175,6 +175,10 @@ div.csl-indent {
 </ul></li>
 <li><a href="#sample-data">Sample data</a></li>
 <li><a href="#matched-sample-indexes">Matched-sample indexes</a></li>
+<li><a href="#data-imputation">Data imputation</a>
+<ul>
+<li><a href="#carry-forwardbackward-prices">Carry forward/backward prices</a></li>
+</ul></li>
 <li><a href="#bilateral-index-numbers">Bilateral index numbers</a>
 <ul>
 <li><a href="#time-dummy-methods">Time dummy methods</a></li>
@@ -183,6 +187,8 @@ div.csl-indent {
 <li><a href="#the-elasticity-of-substitution-parameter">The elasticity of substitution parameter</a></li>
 <li><a href="#chain-linked-indices-and-the-linking-period-problem">Chain-linked indices and the linking period problem</a>
 <ul>
+<li><a href="#dissimilarity-measures">Dissimilarity measures</a></li>
+<li><a href="#estimating-similarity-linked-indexes">Estimating similarity-linked indexes</a></li>
 <li><a href="#examples-1">Examples</a></li>
 </ul></li>
 <li><a href="#multilateral-index-numbers">Multilateral index numbers</a>
@@ -196,6 +202,8 @@ div.csl-indent {
 <ul>
 <li><a href="#examples-2">Examples</a></li>
 </ul></li>
+<li><a href="#group-indexes">Group indexes</a></li>
+<li><a href="#year-over-year-indexes">Year-over-year Indexes</a></li>
 </ul></li>
 <li><a href="#development">Development</a></li>
 <li><a href="#references">References</a></li>
@@ -231,6 +239,7 @@ div.csl-indent {
 <li>a time period variable (more on this below)</li>
 <li>a product identifier that uniquely identifies each product.</li>
 </ul>
+<p>One exception to the above is when elementary indexes are estimated using the <code>priceIndex</code> function. A quantity variable is not required in this case because the index is unweighted, and in many cases quantities may not be available (for example, when statistical agencies collect sample prices on individual products).</p>
 <p>The dataframe must have column names, since character strings are used in other arguments to the index number functions to specify which columns contain the data listed above. Column names can be set with the <code>colnames</code> function of base R. The sample dataset CES_sigma_2 is an example of the minimum dataframe required to compute an index.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(CES_sigma_2)</span></code></pre></div>
 <pre><code>##   time prices quantities prodID
@@ -411,6 +420,58 @@ div.csl-indent {
 \end{equation}\]</span> where <span class="math inline">\(I(t)\)</span> is the set of products available in period <span class="math inline">\(t\)</span>, <span class="math inline">\(t=1\)</span> refers to the current period as is used to compute column 8 and <span class="math inline">\(t=0\)</span> refers to the comparison period, which is used to compute column 4.</p>
 <p>The count matrix has two additional columns, “new” and “leaving.” The new column gives the number of products that exist in the current period but not the base period (products entering the sample). The leaving column gives the count of products that exist in the base period but not the current period (products leaving the sample). Matching removes both of these types of products.</p>
 </div>
+<div id="data-imputation" class="section level2">
+<h2>Data imputation</h2>
+<div id="carry-forwardbackward-prices" class="section level3">
+<h3>Carry forward/backward prices</h3>
+<p>An alternative to using a matched sample of products is to impute the missing data. One technique for doing this is to replace missing values with the last actual price observation. If the data has both prices and quantities then the corresponding quantities are set to zero. If the missing observations occur at the beginning of the time series then the first actual observation is carried backward to the first time period. <em>IndexNumR</em> performs this carry price imputation with the <code>imputeCarryPrices</code> function; however, this is only needed if the imputed data themselves are of interest. Otherwise, the price index functions can use carry price imputation by setting the parameter <code>imputePrices = &quot;carry&quot;</code>.</p>
+<p>In the example below, the first two observations on product 1 are missing, so the price from the third period is carried backwards to fill the missing observations. Observations 3 and 4 are missing on product 2, so the price in period 2 is carried forward to fill them. The corresponding quantities are set to zero.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create a dataset with some missing observations on product 1 and 2</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> CES_sigma_2[<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">15</span>,<span class="dv">16</span>),]</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> df[df<span class="sc">$</span>prodID <span class="sc">%in%</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span> <span class="sc">&amp;</span> df<span class="sc">$</span>time <span class="sc">&lt;=</span> <span class="dv">6</span>,]</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>dfMissing <span class="ot">&lt;-</span> df[, <span class="fu">c</span>(<span class="st">&quot;time&quot;</span>, <span class="st">&quot;prices&quot;</span>, <span class="st">&quot;prodID&quot;</span>)] <span class="sc">%&gt;%</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_wider</span>(<span class="at">id_cols =</span> time, <span class="at">names_from =</span> prodID, <span class="at">values_from =</span> prices)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>dfMissing[<span class="fu">order</span>(dfMissing<span class="sc">$</span>time),]</span></code></pre></div>
+<pre><code>## # A tibble: 6 x 3
+##    time   `1`   `2`
+##   &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1     1 NA     1   
+## 2     2 NA     0.5 
+## 3     3  1.6  NA   
+## 4     4  1.5  NA   
+## 5     5  1.45  1.12
+## 6     6  1.4   1.15</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># compute carry prices</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>carryPrices <span class="ot">&lt;-</span> <span class="fu">imputeCarryPrices</span>(df, <span class="at">pvar =</span> <span class="st">&quot;prices&quot;</span>, <span class="at">qvar =</span> <span class="st">&quot;quantities&quot;</span>, </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">pervar =</span> <span class="st">&quot;time&quot;</span>, <span class="at">prodID =</span> <span class="st">&quot;prodID&quot;</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># print the data with the product prices in columns to see the filled data</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>carryPrices[, <span class="fu">c</span>(<span class="st">&quot;time&quot;</span>, <span class="st">&quot;prices&quot;</span>, <span class="st">&quot;prodID&quot;</span>)] <span class="sc">%&gt;%</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_wider</span>(<span class="at">id_cols =</span> time, <span class="at">names_from =</span> prodID, <span class="at">values_from =</span> prices)</span></code></pre></div>
+<pre><code>## # A tibble: 6 x 3
+##    time   `1`   `2`
+##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1     1  1.6   1   
+## 2     2  1.6   0.5 
+## 3     3  1.6   0.5 
+## 4     4  1.5   0.5 
+## 5     5  1.45  1.12
+## 6     6  1.4   1.15</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># print the data with the product quantities in columns to see the corresponding zeros</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>carryPrices[, <span class="fu">c</span>(<span class="st">&quot;time&quot;</span>, <span class="st">&quot;quantities&quot;</span>, <span class="st">&quot;prodID&quot;</span>)] <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_wider</span>(<span class="at">id_cols =</span> time, <span class="at">names_from =</span> prodID, <span class="at">values_from =</span> quantities)</span></code></pre></div>
+<pre><code>## # A tibble: 6 x 3
+##    time   `1`   `2`
+##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1     1 0      1.54
+## 2     2 0      7.16
+## 3     3 0.714  0   
+## 4     4 0.915  0   
+## 5     5 1.03   1.72
+## 6     6 1.21   1.79</code></pre>
+</div>
+</div>
 <div id="bilateral-index-numbers" class="section level2">
 <h2>Bilateral index numbers</h2>
 <p>Bilateral index numbers are those that examine the movement between two periods. All of the bilateral index numbers can be computed as period-on-period, chained or fixed base. Period-on-period simply measures the change from one period to the next. Chained indices give the cumulative change, and it is calculated as the cumulative product of the period-on-period index. The fixed base index compares each period to the base period. This is also called a direct index, because unlike a chained index, it does not go through other periods to measure the change since the base period. Formulae used to compute the bilateral index numbers from period t-1 to period t are as below.</p>
@@ -498,13 +559,13 @@ P(p^{t-1},p^{t},q^{t-1},q^{t}) = A + \sqrt{A^2 + V^{t}/V^{t-1}},
 <div id="examples" class="section level3">
 <h3>Examples</h3>
 <p>To estimate a simple chained Laspeyres price index,</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">priceIndex</span>(CES_sigma_2,</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">pvar =</span> <span class="st">&quot;prices&quot;</span>,</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">qvar =</span> <span class="st">&quot;quantities&quot;</span>,</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">pervar =</span> <span class="st">&quot;time&quot;</span>,</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">prodID =</span> <span class="st">&quot;prodID&quot;</span>, </span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">indexMethod =</span> <span class="st">&quot;laspeyres&quot;</span>, </span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">output =</span> <span class="st">&quot;chained&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">priceIndex</span>(CES_sigma_2,</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">pvar =</span> <span class="st">&quot;prices&quot;</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">qvar =</span> <span class="st">&quot;quantities&quot;</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">pervar =</span> <span class="st">&quot;time&quot;</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">prodID =</span> <span class="st">&quot;prodID&quot;</span>, </span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">indexMethod =</span> <span class="st">&quot;laspeyres&quot;</span>, </span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">output =</span> <span class="st">&quot;chained&quot;</span>)</span></code></pre></div>
 <pre><code>##            [,1]
 ##  [1,] 1.0000000
 ##  [2,] 0.9673077
@@ -519,17 +580,17 @@ P(p^{t-1},p^{t},q^{t-1},q^{t}) = A + \sqrt{A^2 + V^{t}/V^{t-1}},
 ## [11,] 2.1810170
 ## [12,] 2.2000474</code></pre>
 <p>Estimating multiple different index numbers on the same data is straight-forward,</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>methods <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;laspeyres&quot;</span>,<span class="st">&quot;paasche&quot;</span>,<span class="st">&quot;fisher&quot;</span>,<span class="st">&quot;tornqvist&quot;</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>prices <span class="ot">&lt;-</span> <span class="fu">lapply</span>(methods, </span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                 <span class="cf">function</span>(x) {<span class="fu">priceIndex</span>(CES_sigma_2,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">pvar =</span> <span class="st">&quot;prices&quot;</span>, </span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">qvar =</span> <span class="st">&quot;quantities&quot;</span>, </span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">pervar =</span> <span class="st">&quot;time&quot;</span>, </span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">prodID =</span> <span class="st">&quot;prodID&quot;</span>, </span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">indexMethod =</span> x, </span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">output =</span> <span class="st">&quot;chained&quot;</span>)})</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">as.data.frame</span>(prices, <span class="at">col.names =</span> methods)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>methods <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;laspeyres&quot;</span>,<span class="st">&quot;paasche&quot;</span>,<span class="st">&quot;fisher&quot;</span>,<span class="st">&quot;tornqvist&quot;</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>prices <span class="ot">&lt;-</span> <span class="fu">lapply</span>(methods, </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                 <span class="cf">function</span>(x) {<span class="fu">priceIndex</span>(CES_sigma_2,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">pvar =</span> <span class="st">&quot;prices&quot;</span>, </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">qvar =</span> <span class="st">&quot;quantities&quot;</span>, </span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">pervar =</span> <span class="st">&quot;time&quot;</span>, </span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">prodID =</span> <span class="st">&quot;prodID&quot;</span>, </span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">indexMethod =</span> x, </span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">output =</span> <span class="st">&quot;chained&quot;</span>)})</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="fu">as.data.frame</span>(prices, <span class="at">col.names =</span> methods)</span></code></pre></div>
 <pre><code>##    laspeyres   paasche    fisher tornqvist
 ## 1  1.0000000 1.0000000 1.0000000 1.0000000
 ## 2  0.9673077 0.8007632 0.8801048 0.8925715
@@ -555,12 +616,12 @@ P(p^{t-1},p^{t},q^{t-1},q^{t}) = A + \sqrt{A^2 + V^{t}/V^{t-1}},
 \end{equation}\]</span></p>
 <p>This is done using the <code>uniroot</code> function of the <em>stats</em> package distributed with base R. Note that this equation can be used to solve for sigma for any <span class="math inline">\(t=2,\cdots,T\)</span>, so there are <span class="math inline">\(T-1\)</span> potential estimates of sigma. The <code>elasticity</code> function will return all <span class="math inline">\(T-1\)</span> estimates as well as the arithmetic mean of the estimates. In addition to the current period CES index, Balk also notes that the Sato-Vartia index can be used, while <span class="citation">(Ivancic, Diewert, and Fox 2010)</span> note that a Fisher index could be used. Any of these three indexes can be used as the comparison index by specifying the <code>compIndex</code> option as either <code>&quot;fisher&quot;</code>, <code>&quot;ces&quot;</code> or <code>&quot;satovartia&quot;</code>. The current period CES index is the default.</p>
 <p>The dataset available with <em>IndexNumR</em>, CES_sigma_2, was calculated assuming a CES cost function with an elasticity of substitution equal to 2. Running the <code>elasticity</code> function on this dataset,</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">elasticity</span>(CES_sigma_2, </span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">pvar=</span><span class="st">&quot;prices&quot;</span>,</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">qvar=</span><span class="st">&quot;quantities&quot;</span>,</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">pervar=</span><span class="st">&quot;time&quot;</span>,</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">prodID=</span><span class="st">&quot;prodID&quot;</span>,</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">compIndex=</span><span class="st">&quot;ces&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">elasticity</span>(CES_sigma_2, </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">pvar=</span><span class="st">&quot;prices&quot;</span>,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">qvar=</span><span class="st">&quot;quantities&quot;</span>,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">pervar=</span><span class="st">&quot;time&quot;</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">prodID=</span><span class="st">&quot;prodID&quot;</span>,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">compIndex=</span><span class="st">&quot;ces&quot;</span>)</span></code></pre></div>
 <pre><code>## $sigma
 ## [1] 2
 ## 
@@ -597,23 +658,34 @@ P(p^{t-1},p^{t},q^{t-1},q^{t}) = A + \sqrt{A^2 + V^{t}/V^{t-1}},
 <h2>Chain-linked indices and the linking period problem</h2>
 <p>One problem with chain-linked indices is the potential for chain drift. Take an example where prices increase in one period and then return to their original level in the next period. An index suffering from chain-drift will increase when prices increase, but won’t return to its original level when prices do. In the above examples, it was noted that there is substantial positive bias in the Laspeyres index and substantial negative bias in the Paasche index. Part of this is due to chain drift.</p>
 <p>One way of reducing the amount of chain drift is to choose linking periods that are ‘similar’ in some sense (alternatively, use a multilateral method). This method of linking has been mentioned by Diewert and Fox <span class="citation">(W. Erwin Diewert and Fox 2017)</span>, and Hill <span class="citation">(Hill 2001)</span> takes the concept further to choose the link period based on a minimum cost spanning tree.</p>
-<p>To choose the linking period we need a measure of the similarity between two periods. For each period we have information on prices and quantities. The Hill (2001) method compares the two periods based on the Paasche-Laspeyres spread,</p>
+<div id="dissimilarity-measures" class="section level3">
+<h3>Dissimilarity measures</h3>
+<p>To choose the linking period we need a measure of the similarity between two periods. For each period we have information on prices and quantities. The Hill (2001) method compares the two periods based on the <strong>Paasche-Laspeyres spread</strong>,</p>
 <p><span class="math display">\[\begin{equation}
 PL (p^{t},p^{T+1},q^{t},q^{T+1}) = \Bigg|{ln\Bigg(\frac{P_{T+1,t}^{L}}{P_{T+1,t}^{P}}\Bigg)}\Bigg|,
 \end{equation}\]</span></p>
 <p>where <span class="math inline">\(P^{L}\)</span> is a Laspeyres price index and <span class="math inline">\(P^{P}\)</span> is a Paasche price index. Since the Laspeyres and Paasche indices are biased in opposite directions, this choice of similarity measure is designed to choose linking periods that minimise the influence of index number method choice.</p>
-<p>Alternative measures exist that compute the dissimilarity of two vectors. Two such measures, recommended by Diewert <span class="citation">(Walter E. Diewert 2002)</span> are the weighted log-quadratic index of relative price dissimilarity and the weighted asymptotically linear index of relative price dissimilarity, given by the following, <span class="math display">\[\begin{align}
+<p>Alternative measures exist that compute the dissimilarity of two vectors. Two such measures, recommended by Diewert <span class="citation">(Walter E. Diewert 2002)</span> are the <strong>weighted log-quadratic index of relative price dissimilarity</strong> and the <strong>weighted asymptotically linear index of relative price dissimilarity</strong>, given by the following, <span class="math display">\[\begin{align}
 LQ(p^{t},p^{T+1},q^{t},q^{T+1}) = \sum_{n=1}^{N}\frac{1}{2}&amp;(s_{T+1,n} + s_{t,n})[ln(p_{T+1,n}/P(p^{t},p^{T+1},q^{t},q^{T+1})p_{t,n})]^{2} \label{eq:logQuadratic} \\
 AL(p^{t},p^{T+1},q^{t},q^{T+1}) = \sum_{n=1}^{N}\frac{1}{2}&amp;(s_{T+1,n} +  s_{t,n})[(p_{T+1,n}/P(p^{t},p^{T+1},q^{t},q^{T+1})p_{t,n}) + \nonumber    \\
 &amp; (P(p^{t},p^{T+1},q^{t},q^{T+1})p_{t,n}/p_{T+1,n}) - 2]
 \end{align}\]</span> where <span class="math inline">\(P(p^{t},p^{T+1},q^{t},q^{T+1})\)</span> is a superlative index number.</p>
-<p>A final measure proposed by Fox, Hill and Diewert <span class="citation">(Fox, Hill, and Diewert 2004)</span> is a measure of absolute dissimilarity given by,</p>
+<p>Another measure proposed by Fox, Hill and Diewert <span class="citation">(Fox, Hill, and Diewert 2004)</span> is a measure of <strong>absolute dissimilarity</strong> given by,</p>
 <p><span class="math display">\[\begin{equation}
 AD(x_{j},x_{k}) = \frac{1}{M+N}\sum_{l=1}^{M+N}\Bigg[ln\Bigg(\frac{x_{kl}}{x_{jl}}\Bigg) - \frac{1}{M+N}\sum_{i=1}^{M+N}ln\Bigg(\frac{x_{ki}}{x_{ji}}\Bigg)\Bigg]^{2} + \Bigg[\frac{1}{M+N}\sum_{i=1}^{M+N}ln\Bigg(\frac{x_{ki}}{x_{ji}}\Bigg)\Bigg]^{2},
 \end{equation}\]</span><br />
 where <span class="math inline">\(M+N\)</span> is the total number of items in the vector and <span class="math inline">\(x_{j}\)</span> and <span class="math inline">\(x_{k}\)</span> are the two vectors being compared. The authors use this in the context of detecting outliers, but it can be used to compare the price and quantity vectors of two time periods. One way to do this is to only use price information, or only use quantity information. There are two ways to use both price and quantity information: stack the price and quantity vectors for each time period into a single vector and compare the two `stacked’ vectors; or calculate separate measures of absolute dissimilarity for prices and quantities before combining these into a single measure. The former method is simple to implement, but augments the price vector with a quantity vector that may be of considerably different magnitude and variance. Another option is to compute the absolute dissimilarity using prices and quantities separately, then combine them by taking the geometric average.</p>
-<p><em>IndexNumR</em> provides two functions, enabling the estimation of all six dissimilarity measures above. The first function <code>relativeDissimilarity</code> calculates the Paasche-Laspeyres spread, log-quadratic and asymptotically linear measures, and the second function <code>mixScaleDissimilarity</code> computes the mix, scale and absolute measures of dissimilarity. Both functions provide the same output - a data frame with three columns containing the indices of the pairs of periods being compared in the first two columns and the value of the dissimilarity measure in the third column.</p>
-<p>Once these have been computed, the function <code>maximiumSimilarityLinks</code> can take the output data frame from these two functions and compute the maximum similarity linking periods. Those linking periods are then used by <code>priceIndex</code> as follows,</p>
+<p>The final measure is the <strong>predicted share measure of relative price dissimilarity</strong> employed by Diewert, Finkel, Sayag and White in the Seasonal Products chapter of the Update of the Consumer Price Index Manual, Consumer Price Index Theory (draft available <a href="https://www.imf.org/-/media/Files/Data/CPI/companion-publication/seasonal-products.ashx">here</a>). To introduce this measure, first we define some notation.</p>
+<p>The share of expenditure on product <span class="math inline">\(n\)</span> in period <span class="math inline">\(t\)</span> is given by <span class="math inline">\(s_{t,n} = p_{t,n}q_{t,n}/ \sum_{i=1}^{K}p_{t,i}q_{t,i}\)</span>. The ‘predicted’ share of expenditure on product <span class="math inline">\(n\)</span> in period <span class="math inline">\(t\)</span>, using the quantities of period <span class="math inline">\(t\)</span> and the prices of period <span class="math inline">\(r\)</span> is given by <span class="math inline">\(s_{r,t,n} = p_{r,n}q_{t,n}/ \sum_{i=1}^{K}p_{r,i}q_{t,i}\)</span>. We also define the predicted share error <span class="math inline">\(e_{r,t,n}\)</span> as the actual share, minus the predicted share <span class="math inline">\(s_{t,n} - s_{r,t,n}\)</span>.</p>
+<p>The predicted share measure of relative price dissimilarity between the periods <span class="math inline">\(t\)</span> and <span class="math inline">\(r\)</span> is given by: <span class="math display">\[\begin{equation}
+  PS_{r,t} = \sum_{n=1}^{N} (e_{r,t,n})^2 + \sum_{n=1}^{N} (e_{t,r,n})^2
+\end{equation}\]</span></p>
+<p>When the dataset being used does not have quantities, and an elementary index is being constructed, we cannot compute the shares in the above formulas. In this case, quantities are imputed in such a way that the expenditure shares on each product available in a time period are equal. The quantities are constructed by setting quantity equal to <span class="math inline">\(1/P_{n,t}\times N_{t}\)</span> where <span class="math inline">\(N_{t}\)</span> is the number of products available in period <span class="math inline">\(t\)</span>. <em>IndexNumR</em> does this with the function <code>imputeQuantities</code>; however price indexes can be estimated without calling this function directly. Calling <code>priceIndex</code> and setting <code>qvar = &quot;&quot;</code> will trigger IndexNumR to impute the quantities used in the estimation of the predicted share relative price dissimilarity measure.</p>
+</div>
+<div id="estimating-similarity-linked-indexes" class="section level3">
+<h3>Estimating similarity-linked indexes</h3>
+<p><em>IndexNumR</em> provides three functions, enabling the estimation of the dissimilarity measures above. The first function <code>relativeDissimilarity</code> calculates the Paasche-Laspeyres spread, log-quadratic, asymptotically linear and predicted share relative dissimilarity measures, and the second function <code>mixScaleDissimilarity</code> computes the mix, scale and absolute measures of dissimilarity. All three functions provide the same output - a data frame with three columns containing the indices of the pairs of periods being compared in the first two columns and the value of the dissimilarity measure in the third column.</p>
+<p>Once these have been computed, the function <code>maximiumSimilarityLinks</code> can take the output data frame from these functions and compute the maximum similarity linking periods. The function <code>priceIndex</code> effectively computes a similarity-linked index as follows,</p>
 <ul>
 <li>Compute the measure of dissimilarity between all possible combinations of time periods.</li>
 <li>Set the price index to 1 in the first period.</li>
@@ -625,18 +697,19 @@ where <span class="math inline">\(M+N\)</span> is the total number of items in t
   P_{chain}^{t} = P_{chain}^{t^{min}} \times P(p^{t^{min}},p^{t},q^{t^{min}},q^{t}) 
   \end{equation*}\]</span></li>
 </ul>
+</div>
 <div id="examples-1" class="section level3">
 <h3>Examples</h3>
 <p>Using the log-quadratic measure of relative dissimilarity, the dissimilarity between the periods in the <code>CES_sigma_2</code> dataset is as follows,</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>lq <span class="ot">&lt;-</span> <span class="fu">relativeDissimilarity</span>(CES_sigma_2, </span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>                            <span class="at">pvar=</span><span class="st">&quot;prices&quot;</span>, </span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                            <span class="at">qvar=</span><span class="st">&quot;quantities&quot;</span>, </span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">pervar =</span> <span class="st">&quot;time&quot;</span>, </span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                            <span class="at">prodID =</span> <span class="st">&quot;prodID&quot;</span>, </span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                            <span class="at">indexMethod =</span> <span class="st">&quot;fisher&quot;</span>, </span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>                            <span class="at">similarityMethod =</span> <span class="st">&quot;logquadratic&quot;</span>)</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(lq)</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>lq <span class="ot">&lt;-</span> <span class="fu">relativeDissimilarity</span>(CES_sigma_2, </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>                            <span class="at">pvar=</span><span class="st">&quot;prices&quot;</span>, </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                            <span class="at">qvar=</span><span class="st">&quot;quantities&quot;</span>, </span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">pervar =</span> <span class="st">&quot;time&quot;</span>, </span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                            <span class="at">prodID =</span> <span class="st">&quot;prodID&quot;</span>, </span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                            <span class="at">indexMethod =</span> <span class="st">&quot;fisher&quot;</span>, </span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                            <span class="at">similarityMethod =</span> <span class="st">&quot;logquadratic&quot;</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(lq)</span></code></pre></div>
 <pre><code>##   period_i period_j dissimilarity
 ## 1        1        2    0.09726451
 ## 2        1        3    0.02037395
@@ -645,7 +718,7 @@ where <span class="math inline">\(M+N\)</span> is the total number of items in t
 ## 5        1        6    0.08880177
 ## 6        1        7    0.08531212</code></pre>
 <p>The output from estimating the dissimilarity between periods can than be used to estimate the maximum similarity links,</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">maximumSimilarityLinks</span>(lq)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">maximumSimilarityLinks</span>(lq)</span></code></pre></div>
 <pre><code>##    xt x0 dissimilarity
 ## 1   1  1   0.000000000
 ## 2   2  1   0.097264508
@@ -660,14 +733,14 @@ where <span class="math inline">\(M+N\)</span> is the total number of items in t
 ## 11 11  9   0.002946674
 ## 12 12 11   0.003612044</code></pre>
 <p>To estimate a chained Laspeyres index linking together the periods with maximum similarity as estimated above,</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">priceIndex</span>(CES_sigma_2,</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">pvar =</span> <span class="st">&quot;prices&quot;</span>,</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">qvar =</span> <span class="st">&quot;quantities&quot;</span>,</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">pervar =</span> <span class="st">&quot;time&quot;</span>,</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">prodID =</span> <span class="st">&quot;prodID&quot;</span>, </span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">indexMethod =</span> <span class="st">&quot;laspeyres&quot;</span>, </span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">output =</span> <span class="st">&quot;chained&quot;</span>, </span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">chainMethod =</span> <span class="st">&quot;logquadratic&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">priceIndex</span>(CES_sigma_2,</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">pvar =</span> <span class="st">&quot;prices&quot;</span>,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">qvar =</span> <span class="st">&quot;quantities&quot;</span>,</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">pervar =</span> <span class="st">&quot;time&quot;</span>,</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">prodID =</span> <span class="st">&quot;prodID&quot;</span>, </span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">indexMethod =</span> <span class="st">&quot;laspeyres&quot;</span>, </span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">output =</span> <span class="st">&quot;chained&quot;</span>, </span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">chainMethod =</span> <span class="st">&quot;logquadratic&quot;</span>)</span></code></pre></div>
 <pre><code>##            [,1]
 ##  [1,] 1.0000000
 ##  [2,] 0.9673077
@@ -715,7 +788,7 @@ where <span class="math inline">\(M+N\)</span> is the total number of items in t
 <p><span class="math display">\[\begin{equation}
   P_{t} = \frac{p^{t} \cdot q^{t}} {b \cdot q^{t}}
 \end{equation}\]</span></p>
-<p>These equations can be solved by an iterative method, where a set of <span class="math inline">\(b_{n}\)</span> are arbitrarily chosen, which can then be used to calculate an initial vector of price levels. This vector of prices is then used to generate a new <span class="math inline">\(b\)</span> vector, and so on until the changes become smaller than some threshold. <em>IndexNumR</em> instead uses an alternative method.</p>
+<p>These equations can be solved by an iterative method, where a set of <span class="math inline">\(b_{n}\)</span> are arbitrarily chosen, which can then be used to calculate an initial vector of price levels. This vector of prices is then used to generate a new <span class="math inline">\(b\)</span> vector, and so on until the changes become smaller than some threshold. <em>IndexNumR</em> can use the iterative method by specifying the parameter <code>solveMethod = &quot;iterative&quot;</code>. However, there is an alternative method using matrix algebra that is significantly more efficient. To use the more efficient method discussed below, specify <code>solveMethod = &quot;inverse&quot;</code>.</p>
 <p>As discussed in <span class="citation">(W. Erwin Diewert and Fox 2017)</span> and following Diewert <span class="citation">(Walter E. Diewert 1999)</span>, the problem of finding the <span class="math inline">\(b\)</span> vector can be solved using the following system of equations:</p>
 <p><span class="math display">\[\begin{equation}
   \left[I_{N} - C\right]b = 0_{N},
@@ -792,27 +865,27 @@ P^{w+1} = P^{base} \times \frac{P_{NEW}^{w+1}}{P_{NEW}^{base}}
 <p>This method uses the same calculation as FBMW, but uses a different set of data for the calculation. It expands the size of the window used to compute the new data point each period to include the latest period of data. If the data are monthly and the base period is each December, then the window used to compute the new data point in January includes only the December and January months. In February it includes the December, January and February months, and so on until the next December where it includes the full 13 months (assuming a window length of 13). This method produces the same result as the FBMW method when the new period being calculated is the base period. Using the same example, if each December is the base period, then each December this will produce the same result as the FBMW method.</p></li>
 </ul>
 <p>The splicing methods are used in this fashion to extend the series up to the final period in the data.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Assume that the data in CES_sigma_2 are quarterly data with time period</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 corresponding to the December quarter. </span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>splices <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;window&quot;</span>, <span class="st">&quot;half&quot;</span>, <span class="st">&quot;movement&quot;</span>, <span class="st">&quot;mean&quot;</span>, <span class="st">&quot;fbew&quot;</span>, <span class="st">&quot;fbmw&quot;</span>, <span class="st">&quot;wisp&quot;</span>, <span class="st">&quot;hasp&quot;</span>, <span class="st">&quot;mean_pub&quot;</span>)</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co"># estimate a GEKS index using the different splicing methods. Under</span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co"># the above assumptions, the window must be 5 to ensure the base period is</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co"># each December quarter.</span></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">lapply</span>(splices, <span class="cf">function</span>(x){</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">GEKSIndex</span>(CES_sigma_2, </span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>          <span class="at">pvar =</span> <span class="st">&quot;prices&quot;</span>, </span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>          <span class="at">qvar =</span> <span class="st">&quot;quantities&quot;</span>, </span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>          <span class="at">pervar =</span> <span class="st">&quot;time&quot;</span>, </span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>          <span class="at">prodID =</span> <span class="st">&quot;prodID&quot;</span>, </span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>          <span class="at">indexMethod =</span> <span class="st">&quot;tornqvist&quot;</span>, </span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>          <span class="at">window=</span><span class="dv">5</span>, </span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>          <span class="at">splice =</span> x)</span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>}))</span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(result) <span class="ot">&lt;-</span> splices</span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>result</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Assume that the data in CES_sigma_2 are quarterly data with time period</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 corresponding to the December quarter. </span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>splices <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;window&quot;</span>, <span class="st">&quot;half&quot;</span>, <span class="st">&quot;movement&quot;</span>, <span class="st">&quot;mean&quot;</span>, <span class="st">&quot;fbew&quot;</span>, <span class="st">&quot;fbmw&quot;</span>, <span class="st">&quot;wisp&quot;</span>, <span class="st">&quot;hasp&quot;</span>, <span class="st">&quot;mean_pub&quot;</span>)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="co"># estimate a GEKS index using the different splicing methods. Under</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="co"># the above assumptions, the window must be 5 to ensure the base period is</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="co"># each December quarter.</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">lapply</span>(splices, <span class="cf">function</span>(x){</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">GEKSIndex</span>(CES_sigma_2, </span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>          <span class="at">pvar =</span> <span class="st">&quot;prices&quot;</span>, </span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>          <span class="at">qvar =</span> <span class="st">&quot;quantities&quot;</span>, </span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>          <span class="at">pervar =</span> <span class="st">&quot;time&quot;</span>, </span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>          <span class="at">prodID =</span> <span class="st">&quot;prodID&quot;</span>, </span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>          <span class="at">indexMethod =</span> <span class="st">&quot;tornqvist&quot;</span>, </span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>          <span class="at">window=</span><span class="dv">5</span>, </span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>          <span class="at">splice =</span> x)</span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(result) <span class="ot">&lt;-</span> splices</span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>result</span></code></pre></div>
 <pre><code>##       window      half  movement      mean      fbew      fbmw      wisp
 ## 1  1.0000000 1.0000000 1.0000000 1.0000000 1.0000000 1.0000000 1.0000000
 ## 2  0.8927770 0.8927770 0.8927770 0.8927770 0.8927770 0.8927770 0.8927770
@@ -862,16 +935,16 @@ I(p^{t-1}, p^{t}) = \sum_{n=1}^{N} \frac{p_{n}^{t}q_{n}^{t}+p_{n}^{t-1}q_{n}^{t-
 <div id="examples-2" class="section level3">
 <h3>Examples</h3>
 <p>Price indicators for the <code>CES_sigma_2</code> dataset are as follows:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>methods <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;laspeyres&quot;</span>, <span class="st">&quot;paasche&quot;</span>, <span class="st">&quot;bennet&quot;</span>, <span class="st">&quot;montgomery&quot;</span>)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">lapply</span>(methods, <span class="cf">function</span>(x) {<span class="fu">priceIndicator</span>(CES_sigma_2, </span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">pvar =</span> <span class="st">&quot;prices&quot;</span>, </span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">qvar =</span> <span class="st">&quot;quantities&quot;</span>, </span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">pervar =</span> <span class="st">&quot;time&quot;</span>, </span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">prodID =</span> <span class="st">&quot;prodID&quot;</span>, </span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">method =</span> x)})</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="fu">as.data.frame</span>(p, <span class="at">col.names =</span> methods)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>methods <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;laspeyres&quot;</span>, <span class="st">&quot;paasche&quot;</span>, <span class="st">&quot;bennet&quot;</span>, <span class="st">&quot;montgomery&quot;</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">lapply</span>(methods, <span class="cf">function</span>(x) {<span class="fu">priceIndicator</span>(CES_sigma_2, </span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">pvar =</span> <span class="st">&quot;prices&quot;</span>, </span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">qvar =</span> <span class="st">&quot;quantities&quot;</span>, </span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">pervar =</span> <span class="st">&quot;time&quot;</span>, </span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">prodID =</span> <span class="st">&quot;prodID&quot;</span>, </span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">method =</span> x)})</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="fu">as.data.frame</span>(p, <span class="at">col.names =</span> methods)</span></code></pre></div>
 <pre><code>##     laspeyres     paasche      bennet  montgomery
 ## 1          NA          NA          NA          NA
 ## 2  -0.3269231 -3.23451167 -1.78071737 -1.27874802
@@ -886,12 +959,12 @@ I(p^{t-1}, p^{t}) = \sum_{n=1}^{N} \frac{p_{n}^{t}q_{n}^{t}+p_{n}^{t-1}q_{n}^{t-
 ## 11  4.9221471  1.65051935  3.28633320  2.85483403
 ## 12  0.1396069  0.02503502  0.08232098  0.08391295</code></pre>
 <p>Quantity indicators can also be produced using the same methods as outlined above via the <code>quantityIndicator</code> function. This allows for the value change from one period to the next to be decomposed into price and quantity movements. To facilitate this, <em>IndexNumR</em> contains the <code>valueDecomposition</code> function, which can be used as follows to produce a decomposition of the value change for CES_sigma_2 using a Bennet indicator:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">valueDecomposition</span>(CES_sigma_2, </span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">pvar =</span> <span class="st">&quot;prices&quot;</span>,  </span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">qvar =</span> <span class="st">&quot;quantities&quot;</span>,  </span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">pervar =</span> <span class="st">&quot;time&quot;</span>,  </span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">prodID =</span> <span class="st">&quot;prodID&quot;</span>,  </span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">priceMethod =</span> <span class="st">&quot;bennet&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">valueDecomposition</span>(CES_sigma_2, </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">pvar =</span> <span class="st">&quot;prices&quot;</span>,  </span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">qvar =</span> <span class="st">&quot;quantities&quot;</span>,  </span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">pervar =</span> <span class="st">&quot;time&quot;</span>,  </span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">prodID =</span> <span class="st">&quot;prodID&quot;</span>,  </span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">priceMethod =</span> <span class="st">&quot;bennet&quot;</span>)</span></code></pre></div>
 <pre><code>##          price   quantity changes values
 ## 1           NA         NA      NA     NA
 ## 2  -1.78071737  4.7807174       3     13
@@ -907,6 +980,120 @@ I(p^{t-1}, p^{t}) = \sum_{n=1}^{N} \frac{p_{n}^{t}q_{n}^{t}+p_{n}^{t-1}q_{n}^{t-
 ## 12  0.08232098  0.9176790       1     17</code></pre>
 <p>Note that for this decomposition, the method is specified for the price indicator and <em>IndexNumR</em> uses the appropriate quantity indicator. For Bennet and Montgomery indicators the same method is used for the quantity indicator as for the price indicator. If a Laspeyres price indicator is requested then the corresponding volume indicator is a Paasche indicator. The reverse is true if the Paasche indicator is used for prices.</p>
 </div>
+</div>
+<div id="group-indexes" class="section level2">
+<h2>Group indexes</h2>
+<p>If a variable is available in the data set that identifies the group to which a product belongs, it is possible to estimate indexes on each of the groups in the sample using the function <code>groupIndexes</code>. An example is if products come from different geographic regions, or belong to different product categories. <code>groupIndexes</code> will split the data into the different groups and estimate a price index on each group. Any of the price index functions can be used by specifying the <code>indexFunction</code> parameter and then supplying the arguments to the price index function as a named list.</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># add a group variable to the CES_sigma_2 dataset</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co"># products 1 and 2 will be in group 1, products 3 and 4 in group 2</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> CES_sigma_2</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>group <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">24</span>), <span class="fu">rep</span>(<span class="dv">2</span>, <span class="dv">24</span>))</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="co"># put the arguments to the priceIndex function into a named list</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>argsList <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">x =</span> df, <span class="at">pvar =</span> <span class="st">&quot;prices&quot;</span>, <span class="at">qvar =</span> <span class="st">&quot;quantities&quot;</span>, <span class="at">pervar =</span> <span class="st">&quot;time&quot;</span>, <span class="at">prodID =</span> <span class="st">&quot;prodID&quot;</span>,</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>             <span class="at">indexMethod =</span> <span class="st">&quot;fisher&quot;</span>, <span class="at">output =</span> <span class="st">&quot;chained&quot;</span>)</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="co"># estimate a bilateral chained fisher index on the groups</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="fu">groupIndexes</span>(<span class="st">&quot;group&quot;</span>, <span class="st">&quot;priceIndex&quot;</span>, argsList)</span></code></pre></div>
+<pre><code>## [[1]]
+##       prices time group
+## 1  1.0000000    1     1
+## 2  0.5877029    2     1
+## 3  0.9380405    3     1
+## 4  0.9389789    4     1
+## 5  0.9349687    5     1
+## 6  0.9341755    6     1
+## 7  0.9316160    7     1
+## 8  0.6112508    8     1
+## 9  0.9039828    9     1
+## 10 0.9039828   10     1
+## 11 0.8944109   11     1
+## 12 0.8797538   12     1
+## 
+## [[2]]
+##       prices time group
+## 1  1.0000000    1     2
+## 2  1.0661653    2     2
+## 3  1.1246802    3     2
+## 4  1.1750587    4     2
+## 5  0.9188633    5     2
+## 6  1.2641295    6     2
+## 7  1.1815301    7     2
+## 8  1.1086856    8     2
+## 9  1.1552277    9     2
+## 10 0.9533554   10     2
+## 11 1.2068426   11     2
+## 12 1.2237077   12     2</code></pre>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># put the arguments for the GEKSIndex function in a named list</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>argsGEKS <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">x =</span> df, <span class="at">pvar =</span> <span class="st">&quot;prices&quot;</span>, <span class="at">qvar =</span> <span class="st">&quot;quantities&quot;</span>, <span class="at">pervar =</span> <span class="st">&quot;time&quot;</span>, <span class="at">prodID =</span> <span class="st">&quot;prodID&quot;</span>,</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">indexMethod =</span> <span class="st">&quot;fisher&quot;</span>, <span class="at">window =</span> <span class="dv">12</span>)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="co"># estimate a GEKS index on the groups</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="fu">groupIndexes</span>(<span class="st">&quot;group&quot;</span>, <span class="st">&quot;GEKSIndex&quot;</span>, argsGEKS)</span></code></pre></div>
+<pre><code>## [[1]]
+##       prices time group
+## 1  1.0000000    1     1
+## 2  0.6008332    2     1
+## 3  0.9469454    3     1
+## 4  0.9468472    4     1
+## 5  0.9423350    5     1
+## 6  0.9409859    6     1
+## 7  0.9378510    7     1
+## 8  0.6170438    8     1
+## 9  0.9111127    9     1
+## 10 0.9104236   10     1
+## 11 0.9002828   11     1
+## 12 0.8851572   12     1
+## 
+## [[2]]
+##       prices time group
+## 1  1.0000000    1     2
+## 2  1.0585842    2     2
+## 3  1.1114981    3     2
+## 4  1.1577551    4     2
+## 5  0.9040366    5     2
+## 6  1.2531574    6     2
+## 7  1.1713514    7     2
+## 8  1.0996714    8     2
+## 9  1.1441569    9     2
+## 10 0.9354981   10     2
+## 11 1.1960967   11     2
+## 12 1.2099160   12     2</code></pre>
+</div>
+<div id="year-over-year-indexes" class="section level2">
+<h2>Year-over-year Indexes</h2>
+<p>Year-over-year indexes are those that calculate the price change between the same periods across years. If the data are monthly then there are twelve indexes; one for each month of the year. Each element of the January index would measure the price movement from January in the base year to January in the comparison year. The second index does the same for February, and so on. <em>IndexNumR</em> provides the function <code>yearOverYearIndexes</code> to estimate these, given the frequency as either ‘monthly’ or ‘quarterly.’ This is effectively a form of group index, where the month or quarter gives the group to which the product belongs. <em>IndexNumR</em> will create a group variable based on the supplied frequency and call the <code>groupIndexes</code> function to estimate the indexes. The data must be structured in the frequency that you specify (if you specify ‘quarterly’ as the frequency in the <code>yearOverYearIndexes</code> function, the time period variable in the data set must be quarterly).</p>
+<p>The output from the <code>yearOverYearIndexes</code> function will have a column for the month or quarter. The quarter labelled as quarter 1 will have been constructed from the time periods 1, 5, 9, 13, etc of the data set. The quarter labelled 2 would have been estimated from time periods 2, 6, 10, 14, etc of the data set.</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Assume the CES_sigma_2 data are quarterly observations over three years. </span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="co"># This results in 4 indexes (one for each quarter) of 3 periods each.</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate year-over-year chained fisher indexes.</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>argsList <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">x =</span> CES_sigma_2, <span class="at">pvar =</span> <span class="st">&quot;prices&quot;</span>, <span class="at">qvar =</span> <span class="st">&quot;quantities&quot;</span>, <span class="at">pervar =</span> <span class="st">&quot;time&quot;</span>, </span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">prodID =</span> <span class="st">&quot;prodID&quot;</span>, <span class="at">indexMethod =</span> <span class="st">&quot;fisher&quot;</span>, <span class="at">output =</span> <span class="st">&quot;chained&quot;</span>)</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="fu">yearOverYearIndexes</span>(<span class="st">&quot;quarterly&quot;</span>, <span class="st">&quot;priceIndex&quot;</span>, argsList)</span></code></pre></div>
+<pre><code>## [[1]]
+##     prices time quarter
+## 1 1.000000    1       1
+## 2 0.892041    2       1
+## 3 1.052713    3       1
+## 
+## [[2]]
+##     prices time quarter
+## 1 1.000000    1       2
+## 2 1.324124    2       2
+## 3 1.058836    3       2
+## 
+## [[3]]
+##     prices time quarter
+## 1 1.000000    1       3
+## 2 1.040759    2       3
+## 3 1.046379    3       3
+## 
+## [[4]]
+##      prices time quarter
+## 1 1.0000000    1       4
+## 2 0.8388911    2       4
+## 3 1.0246700    3       4</code></pre>
 </div>
 </div>
 <div id="development" class="section level1">

@@ -1,5 +1,8 @@
 ## ----setup, include=FALSE-----------------------------------------------------
 library(IndexNumR)
+library(tidyr)
+
+#devtools::load_all()
 
 
 ## ----head_CES-----------------------------------------------------------------
@@ -7,6 +10,29 @@ head(CES_sigma_2)
 
 ## ----head_CES_ordered---------------------------------------------------------
 head(CES_sigma_2[order(CES_sigma_2$time),])
+
+## ----carry--------------------------------------------------------------------
+
+# create a dataset with some missing observations on product 1 and 2
+df <- CES_sigma_2[-c(1,2,15,16),]
+df <- df[df$prodID %in% 1:2 & df$time <= 6,]
+
+dfMissing <- df[, c("time", "prices", "prodID")] %>%
+  tidyr::pivot_wider(id_cols = time, names_from = prodID, values_from = prices)
+dfMissing[order(dfMissing$time),]
+
+# compute carry prices
+carryPrices <- imputeCarryPrices(df, pvar = "prices", qvar = "quantities", 
+                                 pervar = "time", prodID = "prodID")
+
+# print the data with the product prices in columns to see the filled data
+carryPrices[, c("time", "prices", "prodID")] %>%
+  tidyr::pivot_wider(id_cols = time, names_from = prodID, values_from = prices)
+
+# print the data with the product quantities in columns to see the corresponding zeros
+carryPrices[, c("time", "quantities", "prodID")] %>%
+  tidyr::pivot_wider(id_cols = time, names_from = prodID, values_from = quantities)
+
 
 ## ----bilateral_examples-------------------------------------------------------
 priceIndex(CES_sigma_2,
@@ -108,5 +134,39 @@ valueDecomposition(CES_sigma_2,
                    pervar = "time",  
                    prodID = "prodID",  
                    priceMethod = "bennet")
+
+
+## ----groups-------------------------------------------------------------------
+
+# add a group variable to the CES_sigma_2 dataset
+# products 1 and 2 will be in group 1, products 3 and 4 in group 2
+df <- CES_sigma_2
+df$group <- c(rep(1, 24), rep(2, 24))
+
+# put the arguments to the priceIndex function into a named list
+argsList <- list(x = df, pvar = "prices", qvar = "quantities", pervar = "time", prodID = "prodID",
+             indexMethod = "fisher", output = "chained")
+
+# estimate a bilateral chained fisher index on the groups
+groupIndexes("group", "priceIndex", argsList)
+
+# put the arguments for the GEKSIndex function in a named list
+argsGEKS <- list(x = df, pvar = "prices", qvar = "quantities", pervar = "time", prodID = "prodID",
+                 indexMethod = "fisher", window = 12)
+
+# estimate a GEKS index on the groups
+groupIndexes("group", "GEKSIndex", argsGEKS)
+
+
+
+## ----yoy----------------------------------------------------------------------
+
+# Assume the CES_sigma_2 data are quarterly observations over three years. 
+# This results in 4 indexes (one for each quarter) of 3 periods each.
+# Estimate year-over-year chained fisher indexes.
+argsList <- list(x = CES_sigma_2, pvar = "prices", qvar = "quantities", pervar = "time", 
+                 prodID = "prodID", indexMethod = "fisher", output = "chained")
+
+yearOverYearIndexes("quarterly", "priceIndex", argsList)
 
 
